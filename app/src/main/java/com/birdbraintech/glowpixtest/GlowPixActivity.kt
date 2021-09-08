@@ -4,12 +4,14 @@ import android.content.ClipData
 import android.graphics.Canvas
 import android.graphics.Point
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.DragEvent
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -18,12 +20,17 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.math.round
 
 
-class MainActivity : AppCompatActivity(), BlockDelegate {
+class GlowPixActivity : AppCompatActivity(), BlockDelegate {
+
+    private lateinit var colorPaletteFragment: ColorPaletteFragment
 
     private var blockBeingDragged: Block? = null
 
     //Keep track of all the active blocks
     private val workspaceBlocks = mutableListOf<Block>()   // moveable blocks that can make chains
+
+    private var selectedBox: TextView? = null
+    var selectedBlock: Block? = null
 
     // This variable is used to keep track of a block that has been shifted by a ghost image
     private var shiftedBlock: Block? = null
@@ -57,7 +64,7 @@ class MainActivity : AppCompatActivity(), BlockDelegate {
         })
 
         // Set up the blocks on the left menu for this level
-        setupMenu(Level.level1)
+        setupMenu(Level.level3)
 
         val dragListener = View.OnDragListener { _, dragEvent ->
             handleBlockMove(dragEvent)
@@ -68,6 +75,10 @@ class MainActivity : AppCompatActivity(), BlockDelegate {
             deleteBlocks(dragEvent)
         }
         block_menu.setOnDragListener(dragListenerMenu)
+
+        colorPaletteFragment = supportFragmentManager.findFragmentById(R.id.fragmentColorPalette) as ColorPaletteFragment
+        Log.d("Blocks",colorPaletteFragment.toString())
+        //colorPaletteFragment.setButtonListeners()
 
     }
 
@@ -356,6 +367,91 @@ class MainActivity : AppCompatActivity(), BlockDelegate {
         ghostBlock.visibility = View.INVISIBLE
     }
 
+    fun showNumberPad(isVisible: Boolean, showOnRight: Boolean, selectedBox: TextView? = this.selectedBox) {
+//        if (isVisible) {
+//            pictureName.clearFocus()        // Don't want text box to have focus when the numberpad is visible
+//        }
+//        val numberPad = findViewById<View>(R.id.fragmentNumberPad)
+//        if (!isVisible) {
+//            numberPad.visibility = View.INVISIBLE
+//            if (selectedBox != null) {
+//                selectedBox.setBackgroundResource(R.drawable.text_box)
+//                selectedBlock?.updateErrorFlag()
+//                // TO REMOVE - This is just to record problems they got wrong for the pilots
+//                //if (selectedBlock != null) {recordAnswerIfWrong(selectedBlock!!)}
+//
+//                // End of TO REMOVE
+//            }
+//            return
+//        }
+//
+//        showColorPalette(false)
+//        val numberBackground = ContextCompat.getDrawable(this, R.drawable.number_pad_popup)!!
+//
+//        if (selectedBox == null) {
+//            throw AssertionError("showNumberPad called to show on null selected box")
+//        }
+//        selectedBox.getLocationOnScreen(selectedLocation)
+//
+//        val arrow: Drawable
+//        val left: Int
+//        val right: Int
+//        if (showOnRight) {
+//            arrow = ContextCompat.getDrawable(this, R.drawable.ic_arrow_left)!!
+//
+//            left = 0
+//            right = numberBackground.intrinsicWidth
+//
+//            numberPad.x = (selectedLocation[0] + selectedBox.width).toFloat()
+//        } else {
+//            arrow = ContextCompat.getDrawable(this, R.drawable.ic_arrow_right)!!
+//
+//            left = numberBackground.intrinsicWidth
+//            right = 0
+//
+//            numberPad.x = (selectedLocation[0] - numberPad.width).toFloat()
+//        }
+//
+//        val screenPercentage = (selectedLocation[1] + selectedBox.height / 2 - menuBar.height).toDouble() / (window.decorView.height - menuBar.height)
+//        val distanceFromTop = (arrow.intrinsicHeight + (numberBackground.intrinsicHeight - arrow.intrinsicHeight * 2) * screenPercentage).toInt()
+//
+//        // Put the arrow and the white background of the numberpad together.
+//        val together = LayerDrawable(arrayOf(numberBackground, arrow))
+//        // Compress the white number background on both sides by the width of the arrow (both sides for symmetry)
+//        together.setLayerInset(0, arrow.intrinsicWidth - 4, 0, arrow.intrinsicWidth - 4, 0)
+//        // Put the arrow in the middle and to the side of the number background
+//        together.setLayerInset(1, left, distanceFromTop - arrow.intrinsicHeight / 2, right, numberBackground.intrinsicHeight - distanceFromTop - arrow.intrinsicHeight / 2)
+//        numberPad.background = together
+//
+//        numberPad.y = (selectedLocation[1] - distanceFromTop + selectedBox.height / 2).toFloat()
+//        selectedBox.setBackgroundResource(R.drawable.text_box_selected)
+//
+//        clearBlockSpace = true
+//        numberPad.visibility = View.VISIBLE
+    }
+
+
+    fun showColorPalette(isVisible: Boolean) {
+        val colorPalette = findViewById<View>(R.id.fragmentColorPalette)
+        if (!isVisible) {
+            colorPalette.visibility = View.INVISIBLE
+            return
+        }
+
+        showNumberPad(false, false)
+
+//        if (selectedBlock != null) {
+//            selectedBlock!!.getLocationOnScreen(selectedLocation)
+//            colorPalette.x = (selectedLocation[0] - colorPalette.width).toFloat()
+//            colorPalette.y = (selectedLocation[1] - colorPalette.height / 2 + blockHeight / 2).toFloat()
+//
+//            val brightness = selectedBlock!!.brightness
+//            updateBrightnessButtons(brightness)
+//        }
+
+
+        colorPalette.visibility = View.VISIBLE
+    }
     override fun updateGlowBoard() {}
     override fun savePicture() {}
 

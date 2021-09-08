@@ -10,7 +10,7 @@
         android:supportsRtl="false"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"
         android:resizeableActivity="false">
-        <activity android:name=".MainActivity">
+        <activity android:name=".GlowPixActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"
                     android:screenOrientation="landscape"/>

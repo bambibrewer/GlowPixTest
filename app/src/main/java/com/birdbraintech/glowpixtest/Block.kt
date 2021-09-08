@@ -1,9 +1,13 @@
 package com.birdbraintech.glowpixtest
 
+import android.app.ActionBar
 import android.content.Context
 import android.util.Log
+import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 
 // The view controller that contains the block should be a delegate so it can be notified when the blocks has changed
 interface BlockDelegate {
@@ -23,13 +27,26 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
     var isNestable: Boolean =
         ((level == Level.level5) && (type != BlockType.equals) && (type != BlockType.start))
 
-    var canContainChildren: Boolean  =
+    var canContainChildren: Boolean =
         ((level == Level.level5) && (type != BlockType.start))  // all level 5 blocks can contain children, except start
 
+    var ledColor: PixelColor = PixelColor.white
+        set(value) {
+            field = value
+            if (!isNestable && !isStart) {     // nestable blocks and start blocks should not have color buttons
+                // reset the color of the block and the color of the pick button
+                colorPickerButton.setBackgroundResource(value.colorButtonImage)
+                this.setBackgroundResource(value.blockImage)
+
+                // Have to layout the block to see the changes
+                layoutBlock()
+
+            }
+        }
 
     /* All of these variable control the size of the blocks, and the size of the number buttons and labels within them. */
     private val blockHeight: Float = 72.0F
-    var heightOfRectangle: Float = (0.804*blockHeight).toFloat()
+    var heightOfRectangle: Float = (0.804 * blockHeight).toFloat()
 //    var heightOfButton: CGFloat {
 //        return 2*heightOfRectangle/3
 //    }
@@ -73,8 +90,50 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 
     val mathOperator = type.mathOperator
 
+    var colorPickerButton = TextView(context)
+    var startLabel = TextView(context)
+    var firstNumber = Button(context)
+    var operatorLabel = TextView(context)
+    var secondNumber = Button(context)
+    var operatorLabel2: TextView? = null
+    var thirdNumber: Button? = null
+    var equalsLabel = TextView(context)
+    var answer =
+        Button(context)    // also stores the starting number for start blocks in levels 1 and 2
+    //var errorView = ErrorView()
+
+    // Only for blocks that nest
+    var openParentheses = TextView(context)
+    var closeParentheses = TextView(context)
+    var nestingOffsetX = 10.0f
+    var parent: Block? = null
+    var nestedChild1: Block? = null
+    var nestedChild2: Block? = null
+
+    var selectedButton: Button? = null    // Button for which user is currently entering text
+//        set(value) {
+//            if (value == null) {      // if it is nil, want to unshift all the blocks
+////                if let viewController = imageView.findViewController() as? LevelViewController {
+////                    viewController.numberSelected = selectedButton
+////                }
+//            }
+//            field = value
+//        }
+//        // Let the view controller know so that it can open/close keypads
+
+
     init {
+        Log.d("Blocks","created block")
         setBackgroundResource(R.drawable.block_white2)
+
+        // Define the optional fields for the double addition block - it is the only one that uses them
+        if (type == BlockType.doubleAddition) {
+            thirdNumber = Button(context)
+            operatorLabel2 = TextView(context)
+        }
+
+        // Layout the block
+        layoutBlock()
     }
 
     fun getPositionForGhost(whenConnectingToBlock: Block): Pair<Float, Float> {
@@ -186,5 +245,85 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 //        }
 //
 //        evaluateDisplayAndUpdate()
+    }
+
+    private fun layoutBlock() {
+        if (isStart) {
+            //layoutStartBlock()
+        } else if (type == BlockType.equals) {
+            //layoutEqualsBlock()
+        } else if (isNestable) {
+            //layoutNestedBlock()
+        } else if (level == Level.level1) {
+            //layoutBlockLevel1()
+        } else if (level == Level.level2) {
+            //layoutBlockLevel2()
+        } else {
+            layoutBlockLevels3and4()
+        }
+    }
+
+    private fun layoutBlockLevels3and4()
+    {
+        // Add color picker button
+        this.removeView(colorPickerButton)
+        colorPickerButton = TextView(this.context)
+        colorPickerButton.setBackgroundResource(ledColor.colorButtonImage)
+        val scale = context.resources.displayMetrics.density
+        val pixels = (28 * scale + 0.5f).toInt()
+        colorPickerButton!!.height = pixels
+        colorPickerButton!!.width = pixels
+        val params = LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT)
+        params.setMargins(0, 5, 20, 0)
+        colorPickerButton!!.layoutParams = params
+//        colorPickerButton!!.setOnClickListener {
+//            val context = context as GlowPixActivity
+//            //context.selectedBlock = this
+//            context.showColorPalette(true)
+//        }//{ v: View -> onClickColorPaletteButton(v, this) }
+        //colorPickerButton!!.setOnTouchListener(ButtonTouchListener())
+        colorPickerButton!!.isFocusable = false
+        this.addView(colorPickerButton)
+
+//        origin = CGPoint(x: originalBlockWidth/4, y: heightOfRectangle/6)
+//
+//        firstNumber = layoutButtonIfNotSelected(button: firstNumber, origin: origin)
+//        origin.x += firstNumber.frame.width
+//
+//        operatorLabel.removeFromSuperview()
+//        operatorLabel = setupLabel(text: mathOperator, origin: origin)
+//        imageView.addSubview(operatorLabel)
+//        origin.x += operatorLabel.frame.width
+//
+//        secondNumber = layoutButtonIfNotSelected(button: secondNumber, origin: origin)
+//        origin.x += secondNumber.frame.width
+//
+//        if operatorLabel2 != nil {
+//            operatorLabel2?.removeFromSuperview()
+//            operatorLabel2 = setupLabel(text: mathOperator, origin: origin)
+//            imageView.addSubview(operatorLabel2!)
+//            origin.x += operatorLabel2!.frame.width
+//        }
+//
+//        if thirdNumber != nil {
+//            thirdNumber = layoutButtonIfNotSelected(button: thirdNumber!, origin: origin)
+//            origin.x += thirdNumber!.frame.width
+//        }
+//
+//        equalsLabel.removeFromSuperview()
+//        equalsLabel = setupLabel(text: "=", origin: origin)
+//        imageView.addSubview(equalsLabel)
+//        origin.x += equalsLabel.frame.width
+//
+//        answer = layoutButtonIfNotSelected(button: answer, origin: origin)
+//        origin.x += answer.frame.width
+//
+//        // Resize the frame of the block itself
+//        let newFrame = CGRect(x: imageView.frame.minX, y: imageView.frame.minY, width: origin.x + 10, height: blockHeight + 5)
+//        imageView.frame = newFrame
+    }
+
+    fun onClickColorPaletteButton(v: View, thisBlock: View?) {
+
     }
 }

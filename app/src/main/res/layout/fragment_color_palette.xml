@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:paddingRight="20dp"
+    android:orientation="vertical"
+    android:focusable="false"
+    android:descendantFocusability="blocksDescendants"
+    android:background="@drawable/color_palette_background">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/bright"
+            android:layout_width="76sp"
+            android:layout_height="36sp"
+            android:background="@drawable/button_bright_inactive" />
+
+        <Button
+            android:id="@+id/dim"
+            android:layout_width="76sp"
+            android:layout_height="36sp"
+            android:background="@drawable/button_dim_inactive" />
+
+        <Button
+            android:id="@+id/off"
+            android:layout_width="76sp"
+            android:layout_height="36sp"
+            android:background="@drawable/button_off_inactive" />
+
+    </LinearLayout>
+
+    <TableLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TableRow
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/color_red"
+                android:layout_width="37sp"
+                android:layout_height="37sp"
+                android:layout_margin="6dp"
+                android:background="@drawable/color_palette_selection_red" />
+
+            <Button
+                android:id="@+id/color_yellow"
+                android:layout_width="37sp"
+                android:layout_height="37sp"
+                android:layout_margin="6dp"
+                android:background="@drawable/color_palette_selection_yellow" />
+
+            <Button
+                android:id="@+id/color_green"
+                android:layout_width="37sp"
+                android:layout_height="37sp"
+                android:layout_margin="6dp"
+                android:background="@drawable/color_palette_selection_green" />
+
+            <Button
+                android:id="@+id/color_lightblue"
+                android:layout_width="37sp"
+                android:layout_height="37sp"
+                android:layout_margin="6dp"
+                android:background="@drawable/color_palette_selection_teal" />
+
+        </TableRow>
+
+        <TableRow
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/color_darkblue"
+                android:layout_width="37sp"
+                android:layout_height="37sp"
+                android:layout_margin="6dp"
+                android:background="@drawable/color_palette_selection_blue" />
+
+            <Button
+                android:id="@+id/color_purple"
+                android:layout_width="37sp"
+                android:layout_height="37sp"
+                android:layout_margin="6dp"
+                android:background="@drawable/color_palette_selection_purple" />
+
+            <Button
+                android:id="@+id/color_white"
+                android:layout_width="37sp"
+                android:layout_height="37sp"
+                android:layout_margin="6dp"
+                android:background="@drawable/color_palette_button_white" />
+        </TableRow>
+
+    </TableLayout>
+
+</LinearLayout>
