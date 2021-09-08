@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- This file should contain the hard-coded values of all the colors in all apps. The colors.xml
+    files for particular apps may give these values different names, but all the values should live here. -->
+    <!--Common Colors Between Apps-->
+    <color name="gray">#6a6a6a</color>
+    <color name="lightGray">#e9e9e9</color>
+    <color name="mediumGray">#4a4a4a</color>
+    <color name="darkGray">#2C2C2C</color>
+    <color name="transparentWhite">#CCFFFFFF</color>
+    <color name="reallyTransparentWhite">#7FFFFFFF</color>
+    <color name="transparent">#00ffffff</color>
+    <color name="colorChooseSection" >#FFF</color>
+    <color name="teal">@color/sectionTeal</color>
+    <color name="colorText">#9b9b9b</color>
+    <color name="colorGreen">#16e482</color>
+
+    <color name="sectionBlue">#245ea2</color>
+    <color name="sectionGreen">#2e9e51</color>
+    <color name="sectionYellow">#f5a623</color>
+    <color name="sectionTeal">#159bab</color>
+    <color name="sectionMagenta">#a2429b</color>
+
+    <color name="sectionBlueBackground">#e7f1fd</color>
+    <color name="sectionGreenBackground">#def9df</color>
+    <color name="sectionYellowBackground">#fff1d9</color>
+    <color name="sectionTealBackground">#cef7fc</color>
+    <color name="sectionMagentaBackground">#fbe5ff</color>
+
+    <color name="blueHighlight">#80245EA2</color>
+    <color name="greenHighlight">#802E9E51</color>
+    <color name="yellowHighlight">#80F5A623</color>
+    <color name="tealHighlight">#80159BAB</color>
+
+    <color name="backButtonBlueDark">#13183e</color>
+    <color name="backButtonBlue">#2382f2</color>
+    <color name="backButtonGrayDark">#5e5e5e</color>
+    <color name="backButtonGray">#d4d4d4</color>
+    <color name="backButtonGreenDark">#0a5a23</color>
+    <color name="backButtonGreen">#7fe677</color>
+    <color name="backButtonMagentaDark">#562252</color>
+    <color name="backButtonMagenta">#ff9afc</color>
+    <color name="backButtonTealDark">#0a4249</color>
+    <color name="backButtonTeal">#00c7df</color>
+    <color name="backButtonYellowDark">#932b05</color>
+    <color name="backButtonYellow">#ffc668</color>
+
+    <color name="colorBackgroundSolveOverlay">#0c0f23</color>
+
+    <color name="colorFlutterLedRed">#df443a</color>
+    <color name="colorFlutterLedGreen">#2e9e51</color>
+    <color name="colorFlutterLedBlue">@color/sectionBlue</color>
+    <color name="colorFlutterLedYellow">#f5a623</color>
+    <color name="colorFlutterLedMagenta">#b12cb1</color>
+    <color name="colorFlutterLedTeal">#00c7df</color>
+    <color name="colorFlutterLedWhite">#c0c0c0</color>
+    <color name="colorFlutterLedGray">#898888</color>
+    <color name="colorFlutterLedRedDim">#942834</color>
+    <color name="colorFlutterLedYellowDim">#d1c313</color>
+    <color name="colorFlutterLedGreenDim">#008049</color>
+    <color name="colorFlutterLedTealDim">#007f8d</color>
+    <color name="colorFlutterLedBlueDim">#303a9b</color>
+    <color name="colorFlutterLedMagentaDim">#67376f</color>
+    <color name="colorFlutterLedWhiteDim">#a6a6a6</color>
+
+    <color name="overlayBackgroundWithAlpha">#d60c0f23</color>
+
+    <color name="colorTransparentBackgroundDecimalCubes">#16404040</color>
+
+    <!--Cube Value Colors-->
+    <color name="colorFirstPlaceValue">@color/sectionBlue</color>
+    <color name="colorSecondPlaceValue">@color/sectionGreen</color>
+    <color name="colorThirdPlaceValue">@color/sectionYellow</color>
+
+    <!-- GlowPix Colors -->
+    <color name="workspaceFill">#dbeff2</color>
+    <color name="backCornerLight">#79CFD9</color>
+    <color name="backCornerDark">#07383E</color>
+    <color name="textBoxBorder">#1f000000</color>
+    <color name="nestedBlockColored">#6bffffff</color>
+    <color name="colorActive">#009bac</color>
+    <color name="iconBackground">#b9b9b9</color>
+    <color name="settingsBarOutline">#979797</color>
+    <color name="alert_gray">#d9d9d9</color>
+    <color name="glowpixYellow">#f5e40c</color>
+    <color name="glowPixPurple">#a2429b</color>
+    <color name="glowPixTeal">#009bac</color>
+
+    <!-- Fractions Colors -->
+    <color name="colorTealLight">#42bfce</color>
+    <color name="colorYellowLight">#ffc668</color>
+    <color name="colorGreenLight">#25c764</color>
+    <color name="colorGreenGray">#c9f0cb</color>
+
+    <color name="textBoxFill">@color/white</color>
+    <color name="colorNumberPadButton">@color/sectionTeal</color>
+    <color name="colorSelectedBox">@color/sectionTeal</color>
+    <color name="paletteRed">@color/colorFlutterLedRed</color>
+    <color name="paletteYellow">@color/glowpixYellow</color>
+    <color name="paletteGreen">@color/colorFlutterLedGreen</color>
+    <color name="paletteTeal">@color/glowPixTeal</color>
+    <color name="paletteBlue">@color/colorFlutterLedBlue</color>
+    <color name="palettePurple">@color/glowPixPurple</color>
+    <color name="paletteWhite">@color/white</color>
+    <color name="paletteBlack">@color/black</color>
+    <color name="paletteRedDim">@color/colorFlutterLedRedDim</color>
+    <color name="paletteYellowDim">@color/colorFlutterLedYellowDim</color>
+    <color name="paletteGreenDim">@color/colorFlutterLedGreenDim</color>
+    <color name="paletteTealDim">@color/colorFlutterLedTealDim</color>
+    <color name="paletteBlueDim">@color/colorFlutterLedBlueDim</color>
+    <color name="palettePurpleDim">@color/colorFlutterLedMagentaDim</color>
+    <color name="paletteWhiteDim">@color/colorFlutterLedWhiteDim</color>
+    <color name="nestedBlockWhite">@color/workspaceFill</color>
+    <color name="colorInactive">@color/white</color>
+
+    <color name="flutterLabelColor">@color/darkGray</color>
+</resources>

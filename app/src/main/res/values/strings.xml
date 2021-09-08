@@ -1,0 +1,118 @@
+<resources>
+    <string name="app_name">GlowPixTest</string>
+
+    <string name="menu_backward" translatable="false">&lt;</string>
+    <string name="menu_forward" translatable="false">&gt;</string>
+
+    <string name="menu_select_activity_math_pictures">Math Pictures</string>
+    <string name="start">Start</string>
+    <string name="start_chained">Start at </string>
+    <string name="add_block">Add an operator</string>
+    <string name="incorrect_error">Try Again</string>
+    <string name="offgrid_error">Off the GlowBoard</string>
+
+    <string name="choose_level">Choose Level</string>
+    <string name="start_creating">Start Creating</string>
+
+
+    <string name="new_picture">New Picture</string>
+    <string name="default_picture_name">Untitled%d</string>
+    <string name="delete">Delete</string>
+    <string name="delete_file">Delete %s?</string>
+    <string name="equations">Equations</string>
+    <string name="admin">Admin</string>
+
+    <string name="level1_glowpix_description">Add and subtract 1 and 10 to move from one number to another.</string>
+    <string name="level2_glowpix_description">Add and subtract to move from one number to another.</string>
+    <string name="level3_glowpix_description">Add and subtract to select numbers from 1-120.</string>
+    <string name="level4_glowpix_description">Use all four operations to select numbers from 1-144.</string>
+    <string name="level5_glowpix_description">Use parentheses to create more complex equations.</string>
+
+    <!-- connect screens -->
+    <string name="continue_session">Continue Session</string>
+    <string name="start_new_session">Start New Session</string>
+    <string name="finding_robots">Finding Robots</string>
+    <string name="choose_glow_grid">Choose your GlowBoard</string>
+    <string name="choose_cube_tower">Choose your CubeTower</string>
+    <string name="choose_cube_tower_left">Choose the left\nCubeTower</string>
+    <string name="choose_cube_tower_right">Choose the right\nCubeTower</string>
+    <string name="empty"> \n </string>
+    <string name="get_started">Get Started ›</string>
+    <string name="end_session">End Session</string>
+
+    <string name="settings">Settings</string>
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <string name="add">Add</string>
+    <string name="please_enter_valid_email">Please enter a valid email.</string>
+    <string name="please_enter_teacher_name">Please enter teacher name.</string>
+    <string name="sessions">Sessions</string>
+    <string name="view_sessions">View Sessions</string>
+    <string name="sessions_deleted">Sessions are automatically deleted after two weeks.</string>
+
+    <string name="teacher_report_for">Teacher Report For</string>
+    <string name="cancel">Cancel</string>
+    <string name="do_not_send">Don\'t Send</string>
+    <string name="save_report">Save Report</string>
+    <string name="send_email">Send Email</string>
+    <string name="your_name">Your Name</string>
+    <string name="your_teacher">Your Teacher</string>
+    <string name="report">Report</string>
+    <string name="date">Date:</string>
+    <string name="session_time">Session Time:</string>
+    <string name="add_teacher_in_settings">Please add your teacher\'s information in the settings screen.</string>
+    <string name="enter_name">Please enter your name.</string>
+    <string name="name_colon">Name: </string>
+    <string name="session_summary">Session Summary</string>
+
+    <string name="save">Save</string>
+
+    <string name="total_questions">Total Questions:</string>
+    <string name="correct_first_try">Correct on First Try:</string>
+    <string name="incorrect_number_of_tries">Incorrect (Number of Tries):</string>
+    <string name="min">"%d min"</string>
+
+    <string name="done_button_label">Done</string>
+    <string name="check_answer">Check Answer</string>
+    <string name="check_correct">That\'s Correct!</string>
+    <string name="prompt_try_again">Try again</string>
+    <string name="find_another">Find another</string>
+
+    <string name="teachers">Teachers</string>
+
+    <string name="device_prefix" translatable="false">GB</string>
+
+    <string name="explore">Explore</string>
+    <string name="make">Make</string>
+    <string name="solve">Solve</string>
+    <string name="find">Find</string>
+    <string name="create">Create</string>
+    <string name="build">Build</string>
+    <string name="compare">Compare</string>
+    <string name="try_again">Try again</string>
+
+    <string name="level_label">Level %d</string>
+    <string name="level1">Level 1</string>
+    <string name="level2">Level 2</string>
+    <string name="level3">Level 3</string>
+    <string name="level4">Level 4</string>
+    <string name="level5">Level 5</string>
+
+
+    <string name="enter_teacher_code">Enter Teacher Code:</string>
+    <string name="sign_in">Sign in</string>
+    <string name="invalid_code">Invalid code!</string>
+
+    <!-- For Cube3/6 -->
+    <string name="make_prompt">"Make %s."</string>
+    <string name="make_prompt_fraction">"Make "</string>
+    <string name="make_prompt_fraction_teacher_report">"Make (fraction) "</string>
+    <string name="build_try_again_cubes"><![CDATA[Almost, try again using <b>%d cubes</b>.]]></string>
+    <string name="build_prompt_min"><![CDATA[Build the smallest number possible with <b>%d cubes</b>.]]></string>
+    <string name="build_prompt_range"><![CDATA[Build a number between %d and %d with <b>%d cubes</b>.]]></string>
+    <string name="build_prompt_max"><![CDATA[Build the largest number possible with <b>%d cubes</b>.]]></string>
+    <string name="compare_prompt">"Compare your number to %s."</string>
+    <string name="compare_make_prompt">"Make a number with %s in the %s place."</string>
+    <string name="round_prompt"><![CDATA[Round <b>%s</b> to the nearest %s.]]></string>
+
+</resources>

@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/math_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:focusableInTouchMode="true">
+
+    <com.jrummyapps.android.widget.TwoDScrollView
+        android:id="@+id/scroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline4"
+        app:layout_constraintTop_toBottomOf="@id/menuBar">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/workspace"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@color/workspaceFill"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <TextView
+                android:id="@+id/ghostBlock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.5"
+                android:background="@drawable/ghost_block"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.jrummyapps.android.widget.TwoDScrollView>
+
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.15" />
+
+
+    <View
+        android:id="@+id/menuBar"
+        android:layout_width="match_parent"
+        android:layout_height="83dp"
+        android:background="@color/teal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/levelLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/level1"
+        android:fontFamily="@font/source_sans_pro_black"
+        android:textColor="@color/white"
+        android:textSize="24px"
+        app:layout_constraintBottom_toBottomOf="@id/menuBar"
+        app:layout_constraintEnd_toEndOf="@id/guideline4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/menuBar" />
+
+
+    <ImageButton
+        android:id="@+id/play"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="19dp"
+        android:background="@null"
+        android:onClick="play"
+        app:layout_constraintStart_toEndOf="@+id/pictureName"
+        app:layout_constraintEnd_toStartOf="@+id/undoButton"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/play" />
+
+    <ImageButton
+        android:id="@+id/undoButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:background="@null"
+        android:onClick="undo"
+        android:clickable="false"
+        android:alpha="0.5"
+        app:layout_constraintBottom_toBottomOf="@+id/play"
+        app:layout_constraintStart_toEndOf="@+id/play"
+        app:layout_constraintEnd_toStartOf="@+id/redoButton"
+        app:layout_constraintTop_toTopOf="@+id/play"
+        app:srcCompat="@drawable/undo" />
+
+    <ImageButton
+        android:id="@+id/redoButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:background="@null"
+        android:onClick="redo"
+        android:clickable="false"
+        android:alpha="0.5"
+        app:layout_constraintStart_toEndOf="@id/undoButton"
+        app:layout_constraintTop_toTopOf="@+id/play"
+        app:layout_constraintBottom_toBottomOf="@+id/play"
+        app:srcCompat="@drawable/redo" />
+
+    <!-- This button is only here to be an invisible way to hold focus. Otherwise, we cannot unselect the picture name box -->
+    <ImageButton
+        android:id="@+id/dummyButton"
+        android:layout_width="1dp"
+        android:layout_height="1dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <EditText
+        android:id="@+id/pictureName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="22dp"
+        android:layout_marginTop="19dp"
+        android:background="@drawable/text_box_rounded"
+        android:elevation="1dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:paddingLeft="20dp"
+        android:text="@string/default_picture_name"
+        app:layout_constraintStart_toStartOf="@id/scroll"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/block_menu"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/menuBar">
+
+        <ImageView
+            android:id="@+id/block1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/menu_operator_addition"
+            />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/menu_operator_addition"
+            />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/menu_operator_addition"
+            />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/menu_operator_addition"
+            />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/menu_operator_addition"
+            />
+    </LinearLayout>
+
+ <!--   <fragment
+        android:id="@+id/fragmentNumberPad"
+        android:name="com.birdbraintech.owlet.helpers.NumberPadFragment"
+        android:layout_width="327dp"
+        android:layout_height="416dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:visibility="invisible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <fragment
+        android:id="@+id/fragmentColorPalette"
+        android:name="com.birdbraintech.owlet.fragments.ColorPaletteFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />-->
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

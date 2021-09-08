@@ -1,0 +1,23 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportHeight="24.0"
+    android:viewportWidth="24.0">
+    <group
+        android:scaleX="1.2"
+        android:scaleY="1.2"
+        android:translateY="-2.3">
+        <path
+            android:fillColor="@color/colorNumberPadButton"
+            android:pathData="M10,12m-10,0a10,10 0,1 1,20 0a10,10 0,1 1,-20 0" />
+    </group>
+    <group
+        android:scaleX="0.3"
+        android:scaleY="0.3"
+        android:translateX="7"
+        android:translateY="8.4">
+        <path
+            android:fillColor="#FFF"
+            android:pathData="M26.435,0.011L26.435,0L11.044,0c-0.706,0 -1.666,0.43 -2.136,0.956l-8.556,9.59c-0.47,0.525 -0.47,1.383 0,1.911l8.556,9.59c0.47,0.524 1.43,0.953 2.136,0.953h15.39A2.561,2.561 0,0 0,29 20.444L29,2.567A2.56,2.56 0,0 0,26.435 0.011zM23.547,15.358a1.548,1.548 0,0 1,-2.189 2.189L17.5,13.689l-3.858,3.858a1.543,1.543 0,0 1,-1.094 0.453,1.548 1.548,0 0,1 -1.094,-2.642L15.31,11.5l-3.857,-3.858a1.547,1.547 0,1 1,2.188 -2.188L17.5,9.31l3.858,-3.857a1.547,1.547 0,1 1,2.189 2.188L19.689,11.5l3.858,3.858z"/>
+    </group>
+</vector>
