@@ -11,5 +11,4 @@ enum class BlockType {
             division -> "÷"
             else -> ""
         }
-
 }

@@ -3,12 +3,16 @@ package com.birdbraintech.glowpixtest
 import android.content.ClipData
 import android.graphics.Canvas
 import android.graphics.Point
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.DragEvent
 import android.view.View
 import android.view.ViewTreeObserver
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.math.round
@@ -52,11 +56,8 @@ class MainActivity : AppCompatActivity(), BlockDelegate {
             }
         })
 
-        // Set up all the blocks in the menu
-        for (i in 0 until block_menu.childCount) {
-            val v: View = block_menu.getChildAt(i)
-            setupMenuBlock(v)
-        }
+        // Set up the blocks on the left menu for this level
+        setupMenu(Level.level1)
 
         val dragListener = View.OnDragListener { _, dragEvent ->
             handleBlockMove(dragEvent)
@@ -66,17 +67,49 @@ class MainActivity : AppCompatActivity(), BlockDelegate {
         val dragListenerMenu = View.OnDragListener { _, dragEvent ->
             deleteBlocks(dragEvent)
         }
-        block_menu.setOnDragListener(dragListener)
+        block_menu.setOnDragListener(dragListenerMenu)
 
+    }
+
+    // This function sets up the available blocks for each level
+    private fun setupMenu(level: Level) {
+        val blocks = blocksByLevel[level]
+
+        // Set up all the blocks in the menu
+        if (blocks != null) {
+            for (i in 0 until block_menu.childCount) {
+                val v: View = block_menu.getChildAt(i)
+                if (i < blocks.size) {
+                    val blockPair = blocks[i]
+                    v.visibility = View.VISIBLE
+                    setupMenuBlock(v, level = level, type = blockPair.first, drawableInt = blockPair.second)
+                } else {
+                    v.visibility = View.INVISIBLE
+                }
+            }
+        }
+    }
+
+    // This function sets up a menu block to add a new block when it is dragged into the workspace
+    private fun setupMenuBlock(menuBlockView: View, level: Level, type: BlockType, drawableInt: Int) {
+        (menuBlockView as ImageView).setImageResource(drawableInt)
+        menuBlockView.scaleX = 1.2f
+        menuBlockView.scaleY = 1.2f
+        // If you make a long click, start to drag the block
+        val onLongClickListener = View.OnLongClickListener { view ->
+            // A menu block creates a new block in the workspace
+            val newBlock = Block(type,level,this)
+            addBlockToWorkspace(newBlock)
+            blockBeingDragged = newBlock
+            ViewCompat.startDragAndDrop(view, ClipData.newPlainText("", ""),
+                View.DragShadowBuilder(view), view, 0)
+        }
+        menuBlockView.setOnLongClickListener(onLongClickListener)
     }
 
     private fun addBlockToWorkspace(block: Block) {
 
         block.blockDelegate = this
-
-        if (workspaceBlocks.contains(block)) {  // should always fail
-            print("why does this view already have a block??")
-        }
 
         // If you make a long click, start to drag the block
         val onLongClickListener = View.OnLongClickListener { view ->
@@ -143,9 +176,9 @@ class MainActivity : AppCompatActivity(), BlockDelegate {
                 removeGhostImage()
 
                 if (blockBeingDragged != null) {
-                    nestOrAttach(blockBeingDragged!!)
+                    deleteBlockChain(blockBeingDragged!!)
                 }
-                hideBlocks(false)
+
                 blockBeingDragged = null
                 false
             }
@@ -241,20 +274,6 @@ class MainActivity : AppCompatActivity(), BlockDelegate {
         }
     }
 
-    // This function sets up a menu block to add a new block when it is dragged into the workspace
-    private fun setupMenuBlock(menuBlockView: View) {
-        // If you make a long click, start to drag the block
-        val onLongClickListener = View.OnLongClickListener { view ->
-            // A menu block creates a new block in the workspace
-            val newBlock = Block(BlockType.addition,Level.level1,this)
-            addBlockToWorkspace(newBlock)
-            blockBeingDragged = newBlock
-            ViewCompat.startDragAndDrop(view, ClipData.newPlainText("", ""),
-                View.DragShadowBuilder(view), view, 0)
-        }
-        menuBlockView.setOnLongClickListener(onLongClickListener)
-    }
-
     //This function returns the block in the workspace that the block
     //should attach to if dropped (or nil if not close enough to any)
     //Should probably find the closest, but this isn't usually an issue
@@ -273,7 +292,6 @@ class MainActivity : AppCompatActivity(), BlockDelegate {
 
                     val toBlockCenterX = toBlock.x + toBlock.width/2
                     val toBlockCenterY = toBlock.y + toBlock.height/2
-                    //Log.d("Ghost",minX.toString() + "  " + maxX.toString() + "  " + minY.toString() + "  " + maxY.toString() + "  " + toBlock.x + "  " + toBlock.y)
                     if (toBlockCenterX > minX && toBlockCenterX < maxX &&
                             toBlockCenterY > minY && toBlockCenterY < maxY) {
                         attachBlock = workspaceBlock
@@ -305,7 +323,6 @@ class MainActivity : AppCompatActivity(), BlockDelegate {
             val blocksAfterGhostPosition = block.getPositionForBlocksAttachedToGhost(whenConnectingToBlock = attachableBlock)
             attachableBlock.nextBlock?.x = blocksAfterGhostPosition.first
             attachableBlock.nextBlock?.y = blocksAfterGhostPosition.second
-            Log.d("Blocks","adding ghost image")
             attachableBlock.nextBlock?.positionChainImages()
 
         } else {
@@ -341,4 +358,39 @@ class MainActivity : AppCompatActivity(), BlockDelegate {
 
     override fun updateGlowBoard() {}
     override fun savePicture() {}
+
+    companion object {
+
+        // This dictionary defines the blocks for each level
+        val blocksByLevel: Map<Level,List<Pair<BlockType,Int>>> = mapOf(
+            Level.level1 to listOf(
+                Pair(BlockType.addition1, R.drawable.menu_operator_add_one),
+                Pair(BlockType.addition10, R.drawable.menu_operator_add_ten),
+                Pair(BlockType.subtraction1, R.drawable.menu_operator_subtract_one),
+                Pair(BlockType.addition10, R.drawable.menu_operator_subtract_ten)
+            ),
+            Level.level2 to listOf(
+                Pair(BlockType.addition, R.drawable.menu_operator_addition),
+                Pair(BlockType.subtraction, R.drawable.menu_operator_subtraction)
+            ),
+            Level.level3 to listOf(
+                Pair(BlockType.addition, R.drawable.menu_operator_addition),
+                Pair(BlockType.subtraction, R.drawable.menu_operator_subtraction),
+                Pair(BlockType.doubleAddition, R.drawable.menu_operator_plusplus)
+            ),
+            Level.level4 to listOf(
+                Pair(BlockType.addition, R.drawable.menu_operator_addition),
+                Pair(BlockType.subtraction, R.drawable.menu_operator_subtraction),
+                Pair(BlockType.multiplication, R.drawable.menu_operator_multiplication),
+                Pair(BlockType.division, R.drawable.menu_operator_division)
+            ),
+            Level.level5 to listOf(
+                Pair(BlockType.equals, R.drawable.menu_operator_equals),
+                Pair(BlockType.addition, R.drawable.menu_operator_addition_nested),
+                Pair(BlockType.subtraction, R.drawable.menu_operator_subtraction_nested),
+                Pair(BlockType.multiplication, R.drawable.menu_operator_multiplication_nested),
+                Pair(BlockType.division, R.drawable.menu_operator_division_nested)
+            )
+        )
+    }
 }

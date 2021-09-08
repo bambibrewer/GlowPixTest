@@ -102,7 +102,6 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 
     // Position the vertical stack of blocks
     fun positionChainImages(){
-        Log.d("Blocks","position chain images")
         if (!isNestable) {        // This function shouldn't be called for a nestable block
             if (nextBlock != null) {
                 nextBlock?.goToPosition(whenConnectingToBlock = this)
