@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.math.round
 
 
-class GlowPixActivity : AppCompatActivity(), BlockDelegate {
+class GlowPixActivity : AppCompatActivity(), BlockDelegate, ColorPickerDelegate {
 
     private lateinit var colorPaletteFragment: ColorPaletteFragment
 
@@ -77,8 +77,9 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
         block_menu.setOnDragListener(dragListenerMenu)
 
         colorPaletteFragment = supportFragmentManager.findFragmentById(R.id.fragmentColorPalette) as ColorPaletteFragment
-        Log.d("Blocks",colorPaletteFragment.toString())
-        //colorPaletteFragment.setButtonListeners()
+        colorPaletteFragment.colorPickerDelegate = this
+        //colorPaletteFragment.setExistingColor(PixelColor.white)
+
 
     }
 
@@ -455,6 +456,11 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
     override fun updateGlowBoard() {}
     override fun savePicture() {}
 
+    // Required for ColorPickerDelegate
+    override fun colorSelected(color: PixelColor) {
+        Log.d("Blocks",color.toString())
+    }
+
     companion object {
 
         // This dictionary defines the blocks for each level
@@ -489,4 +495,6 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
             )
         )
     }
+
+
 }

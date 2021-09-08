@@ -48,11 +48,15 @@ class ColorPaletteFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("Blocks","created fragment")
         brightnessButtons = arrayOf(bright, dim, off)
         colorButtons = arrayOf(color_red, color_yellow, color_green, color_lightblue, color_darkblue, color_purple, color_white)
 
         setButtonListeners()
+    }
+
+    /* If a color was already selected, this function can be used to restore it. */
+    fun setExistingColor(color: PixelColor) {
+        this.color = color
     }
 
     fun setButtonListeners()
@@ -66,36 +70,45 @@ class ColorPaletteFragment : Fragment() {
 
         for (button in colorButtons) {
             button.setOnClickListener {
-                //colorClicked(button)
+                colorClicked(button)
             }
         }
     }
 
+    private fun colorClicked(button: Button) {
+        color = when(button) {
+            color_red -> getLEDColor(brightnessLevel, ButtonColor.red)
+            color_yellow -> getLEDColor(brightnessLevel, ButtonColor.yellow)
+            color_green -> getLEDColor(brightnessLevel, ButtonColor.green)
+            color_lightblue -> getLEDColor(brightnessLevel, ButtonColor.teal)
+            color_darkblue -> getLEDColor(brightnessLevel, ButtonColor.blue)
+            color_purple -> getLEDColor(brightnessLevel, ButtonColor.magenta)
+            else -> getLEDColor(brightnessLevel, ButtonColor.white)
+        }
+    }
+
     private fun brightnessClicked(button: Button) {
-        Log.d("Blocks","brightness clicked")
         val oldBrightness = brightnessLevel
-        //val buttonColor = getButtonColor()
+        val buttonColor = getButtonColor()
 
         if (button == bright) {
             brightnessLevel = BrightnessLevel.bright
             if (oldBrightness == BrightnessLevel.off) {
                 color = PixelColor.white
             } else {
-                //color = getLEDColor(brightnessLevel, buttonColor)
+                color = getLEDColor(brightnessLevel, buttonColor)
             }
         } else if (button == dim) {
             brightnessLevel = BrightnessLevel.dim
             if (oldBrightness == BrightnessLevel.off) {
                 color = PixelColor.whiteDim
             } else {
-                //color = getLEDColor(brightnessLevel, buttonColor)
+                color = getLEDColor(brightnessLevel, buttonColor)
             }
         } else {
             brightnessLevel = BrightnessLevel.off
             color = PixelColor.off
         }
-
-
     }
 
     private fun setButtonBackgrounds(brightness: BrightnessLevel) {
@@ -119,6 +132,52 @@ class ColorPaletteFragment : Fragment() {
             } else {
                 button.setBackgroundResource(brightnessBackgroundIds[0][i])
             }
+        }
+    }
+
+    /* This function returns the button color corresponding to the current pixel color. The default is white. */
+    private fun getButtonColor(): ButtonColor {
+        if (color != null) {
+            return when(color) {
+                PixelColor.red, PixelColor.redDim -> ButtonColor.red
+                PixelColor.yellow, PixelColor.yellowDim -> ButtonColor.yellow
+                PixelColor.green, PixelColor.greenDim -> ButtonColor.green
+                PixelColor.teal, PixelColor.tealDim -> ButtonColor.teal
+                PixelColor.blue, PixelColor.blueDim -> ButtonColor.blue
+                PixelColor.magenta, PixelColor.magentaDim -> ButtonColor.magenta
+                PixelColor.white, PixelColor.whiteDim -> ButtonColor.white
+                PixelColor.off -> ButtonColor.white
+                else -> ButtonColor.white
+            }
+        }
+
+        return ButtonColor.white
+    }
+
+    /* This function takes a brightness and the color of a button and generates the color that the pixel should be */
+    private fun getLEDColor(bright: BrightnessLevel, buttoncolor: ButtonColor): PixelColor {
+        return when(bright) {
+            BrightnessLevel.off -> PixelColor.off
+            BrightnessLevel.bright ->
+                when(buttoncolor) {
+                    ButtonColor.red -> PixelColor.red
+                    ButtonColor.yellow -> PixelColor.yellow
+                    ButtonColor.green -> PixelColor.green
+                    ButtonColor.teal -> PixelColor.teal
+                    ButtonColor.blue -> PixelColor.blue
+                    ButtonColor.magenta -> PixelColor.magenta
+                    else -> PixelColor.white
+                }
+            BrightnessLevel.dim->
+                when(buttoncolor) {
+                    ButtonColor.red -> PixelColor.redDim
+                    ButtonColor.yellow -> PixelColor.yellowDim
+                    ButtonColor.green -> PixelColor.greenDim
+                    ButtonColor.teal -> PixelColor.tealDim
+                    ButtonColor.blue -> PixelColor.blueDim
+                    ButtonColor.magenta -> PixelColor.magentaDim
+                    else -> PixelColor.white
+                }
         }
     }
 
