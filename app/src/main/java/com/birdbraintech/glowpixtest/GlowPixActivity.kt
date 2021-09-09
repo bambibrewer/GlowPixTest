@@ -4,8 +4,9 @@ import android.content.ClipData
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Point
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.DragEvent
 import android.view.MotionEvent
 import android.view.View
@@ -14,6 +15,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.math.round
@@ -22,6 +24,7 @@ import kotlin.math.round
 class GlowPixActivity : AppCompatActivity(), BlockDelegate {
 
     lateinit var colorPickerFragment: ColorPickerFragment
+    lateinit var numberPadFragment: NumberPadFragmentGlowPix
 
     private var blockBeingDragged: Block? = null
 
@@ -82,7 +85,9 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
         block_menu.setOnDragListener(dragListenerMenu)
 
         colorPickerFragment = supportFragmentManager.findFragmentById(R.id.fragmentColorPalette) as ColorPickerFragment
+        numberPadFragment = supportFragmentManager.findFragmentById(R.id.fragmentNumberPad) as NumberPadFragmentGlowPix
         showColorPicker(false)
+        showNumberPad(false, false)
 
 
     }
@@ -372,70 +377,54 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
         ghostBlock.visibility = View.INVISIBLE
     }
 
-    fun showNumberPad(isVisible: Boolean, showOnRight: Boolean, selectedBox: TextView? = this.selectedBox) {
+    fun showNumberPad(isVisible: Boolean, showOnRight: Boolean, x:Float = 0.0f, y: Float = 0.0f, boxWidth: Float = 0.0f, boxHeight: Float = 0.0f) {
         if (isVisible) {
             pictureName.clearFocus()        // Don't want text box to have focus when the numberpad is visible
         }
         showColorPicker(false)
 
-        val fragmentNumberPadView = findViewById<View>(R.id.fragmentNumberPad)
+        val numberPad = findViewById<View>(R.id.fragmentNumberPad)
 
         if (!isVisible) {
-            fragmentNumberPadView.visibility = View.INVISIBLE
-//            if (selectedBox != null) {
-//                selectedBox.setBackgroundResource(R.drawable.text_box)
-//                selectedBlock?.updateErrorFlag()
-//                // TO REMOVE - This is just to record problems they got wrong for the pilots
-//                //if (selectedBlock != null) {recordAnswerIfWrong(selectedBlock!!)}
-//
-//                // End of TO REMOVE
-//            }
+            numberPad.visibility = View.INVISIBLE
             return
         }
-//
 
-//        val numberBackground = ContextCompat.getDrawable(this, R.drawable.number_pad_popup)!!
-//
-//        if (selectedBox == null) {
-//            throw AssertionError("showNumberPad called to show on null selected box")
-//        }
-//        selectedBox.getLocationOnScreen(selectedLocation)
-//
-//        val arrow: Drawable
-//        val left: Int
-//        val right: Int
-//        if (showOnRight) {
-//            arrow = ContextCompat.getDrawable(this, R.drawable.ic_arrow_left)!!
-//
-//            left = 0
-//            right = numberBackground.intrinsicWidth
-//
-//            numberPad.x = (selectedLocation[0] + selectedBox.width).toFloat()
-//        } else {
-//            arrow = ContextCompat.getDrawable(this, R.drawable.ic_arrow_right)!!
-//
-//            left = numberBackground.intrinsicWidth
-//            right = 0
-//
-//            numberPad.x = (selectedLocation[0] - numberPad.width).toFloat()
-//        }
-//
-//        val screenPercentage = (selectedLocation[1] + selectedBox.height / 2 - menuBar.height).toDouble() / (window.decorView.height - menuBar.height)
-//        val distanceFromTop = (arrow.intrinsicHeight + (numberBackground.intrinsicHeight - arrow.intrinsicHeight * 2) * screenPercentage).toInt()
-//
-//        // Put the arrow and the white background of the numberpad together.
-//        val together = LayerDrawable(arrayOf(numberBackground, arrow))
-//        // Compress the white number background on both sides by the width of the arrow (both sides for symmetry)
-//        together.setLayerInset(0, arrow.intrinsicWidth - 4, 0, arrow.intrinsicWidth - 4, 0)
-//        // Put the arrow in the middle and to the side of the number background
-//        together.setLayerInset(1, left, distanceFromTop - arrow.intrinsicHeight / 2, right, numberBackground.intrinsicHeight - distanceFromTop - arrow.intrinsicHeight / 2)
-//        numberPad.background = together
-//
-//        numberPad.y = (selectedLocation[1] - distanceFromTop + selectedBox.height / 2).toFloat()
-//        selectedBox.setBackgroundResource(R.drawable.text_box_selected)
-//
-//        clearBlockSpace = true
-//        numberPad.visibility = View.VISIBLE
+        val numberBackground = ContextCompat.getDrawable(this, R.drawable.number_pad_popup)!!
+
+        val arrow: Drawable
+        val left: Int
+        val right: Int
+        if (showOnRight) {
+            arrow = ContextCompat.getDrawable(this, R.drawable.ic_arrow_left)!!
+
+            left = 0
+            right = numberBackground.intrinsicWidth
+
+            numberPad.x = (x + boxWidth).toFloat()
+        } else {
+            arrow = ContextCompat.getDrawable(this, R.drawable.ic_arrow_right)!!
+
+            left = numberBackground.intrinsicWidth
+            right = 0
+
+            numberPad.x = (x - numberPad.width).toFloat()
+        }
+
+        val screenPercentage = (y + boxHeight / 2 - menuBar.height).toDouble() / (window.decorView.height - menuBar.height)
+        val distanceFromTop = (arrow.intrinsicHeight + (numberBackground.intrinsicHeight - arrow.intrinsicHeight * 2) * screenPercentage).toInt()
+
+        // Put the arrow and the white background of the numberpad together.
+        val together = LayerDrawable(arrayOf(numberBackground, arrow))
+        // Compress the white number background on both sides by the width of the arrow (both sides for symmetry)
+        together.setLayerInset(0, arrow.intrinsicWidth - 4, 0, arrow.intrinsicWidth - 4, 0)
+        // Put the arrow in the middle and to the side of the number background
+        together.setLayerInset(1, left, distanceFromTop - arrow.intrinsicHeight / 2, right, numberBackground.intrinsicHeight - distanceFromTop - arrow.intrinsicHeight / 2)
+        numberPad.background = together
+
+        numberPad.y = (y - distanceFromTop + boxHeight / 2)
+
+        numberPad.visibility = View.VISIBLE
     }
 
 

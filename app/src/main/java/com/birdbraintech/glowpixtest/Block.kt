@@ -20,7 +20,7 @@ interface BlockDelegate {
 }
 
 
-class Block(val type: BlockType, val level: Level, context: Context): LinearLayout(context), ColorPickerDelegate {
+class Block(val type: BlockType, val level: Level, context: Context): LinearLayout(context), ColorPickerDelegate, NumberPadDelegate {
 
     //var imageView: ImageView
 
@@ -332,16 +332,23 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         button.minimumWidth = pixelsWidth
         //params.setMargins(0, 5, 20, 0)
         button.layoutParams = params
-        button.text = "2"//text
-        button.textSize = 28f
+        button.text = text
+        button.textSize = 24f
         button.setTextColor(ContextCompat.getColor(context, R.color.darkGray))
         val typeface: Typeface? = ResourcesCompat.getFont(context, R.font.raleway)
         button.typeface = typeface
         button.gravity = Gravity.CENTER
         button.setPadding(padding, 0, padding, 0)
         button.setOnClickListener { v: View ->
-            val context = v.context
-            (context as GlowPixActivity).showNumberPad(true, false)
+            val context = context as GlowPixActivity
+            selectedButton = button
+            context.numberPadFragment.numberPadDelegate = this
+            context.numberPadFragment.resetNumber()
+
+            // Find out where the block is to show the color picker popup
+            val selectedLocation = IntArray(2)
+            this.getLocationOnScreen(selectedLocation)
+            context.showNumberPad(true, true, x = selectedLocation[0].toFloat() + button.x, y = selectedLocation[1].toFloat() + button.y,boxWidth = button.width.toFloat(), boxHeight = button.height.toFloat())
         }
 //        addBorder(button: button)
         return button
@@ -380,4 +387,35 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         blockDelegate?.savePicture()
     }
 
+    // These two functions required for NumberPadDelegate
+    /* This is the function that is called when a user taps a number on the pop-up number pad. */
+    override fun numberChanged(number: Int?) {
+        if (selectedButton != null) {
+            if (number != null) {
+                selectedButton!!.text = number.toString()
+            } else {
+                selectedButton!!.text = ""
+            }
+        }
+//            if (button.titleLabel?.intrinsicContentSize.width ?? 0 > widthOfButton) {
+//            button.sizeToFit()
+//            addBorder(button: button)
+            // Since button has gotten bigger, we need to layout the block again to adjust
+            //layoutBlock()
+        //}
+
+            // If this is level 1 or 2, changing the answer changes the next block as well (remember
+            // that the level 1 and 2 start blocks store the starting number in answer too)
+//            if button == answer && (level == .level1 || level == .level2)  {
+//                nextBlock?.layoutBlock()
+//            }
+        //}
+    }
+
+    /* This function is called when the keypad is dismissed */
+    override fun keypadDismissed() {
+        selectedButton = null
+        // Evaluate the blocks, update the error tags, and notify the block delegate that the blocks have changed.
+        //evaluateDisplayAndUpdate()
+    }
 }

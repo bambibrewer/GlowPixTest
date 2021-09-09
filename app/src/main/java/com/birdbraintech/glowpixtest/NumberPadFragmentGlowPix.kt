@@ -8,11 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.fragment_color_palette.*
 import kotlinx.android.synthetic.main.fragment_number_pad.*
 
 interface NumberPadDelegate {
     fun numberChanged(number: Int?)
+    fun keypadDismissed()
 }
 
 class NumberPadFragmentGlowPix : Fragment() {
@@ -23,15 +23,10 @@ class NumberPadFragmentGlowPix : Fragment() {
     private val inflatedLayoutResource = R.layout.fragment_number_pad
 
     // Use this variable if you want to constrain the number to a particular number of digits
-    var maxNumberOfDigits: Int? = null
+    var maxNumberOfDigits: Int = 9
 
-    // This is a string representation of the number that the user is entering. We want to notify
-    // the delegate when the number changes
+    // This is a string representation of the number that the user is entering.
     private var numberString = ""
-        set(value) {
-            field = value
-            numberPadDelegate?.numberChanged(value.toIntOrNull() ?: 0)
-        }
 
     lateinit var numberButtons: Array<Button>
 
@@ -71,12 +66,18 @@ class NumberPadFragmentGlowPix : Fragment() {
 
         // Otherwise, add the number
         numberString += sender.text
+        numberPadDelegate?.numberChanged(numberString.toIntOrNull())
     }
 
     // This function is called when the user taps the backspace button
     private fun backspacePressed() {
         // Remove the last digit
         numberString = numberString.dropLast(1)
+        numberPadDelegate?.numberChanged(numberString.toIntOrNull())
     }
 
+    // The view controller can use this function to reset the number
+    public fun resetNumber() {
+        numberString = ""
+    }
 }
