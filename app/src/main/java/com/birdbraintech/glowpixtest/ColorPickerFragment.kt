@@ -15,7 +15,6 @@ interface ColorPickerDelegate {
 
 class ColorPickerFragment : Fragment() {
 
-    //var view: View? = null
 
     var colorPickerDelegate: ColorPickerDelegate? = null
 

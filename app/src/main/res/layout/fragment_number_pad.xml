@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:background="@drawable/number_pad_popup" >
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/button1"
+            android:layout_width="75sp"
+            android:layout_height="75sp"
+            android:layout_margin="6dp"
+            android:background="@drawable/number_pad_button"
+            android:text="1"
+            android:textColor="#fff"
+            android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="75sp"
+            android:layout_height="75sp"
+            android:layout_margin="6dp"
+            android:background="@drawable/number_pad_button"
+            android:text="2"
+            android:textColor="#fff"
+            android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/button3"
+            android:layout_width="75sp"
+            android:layout_height="75sp"
+            android:layout_margin="6dp"
+            android:background="@drawable/number_pad_button"
+            android:text="3"
+            android:textColor="#fff"
+            android:textSize="24sp" />
+
+    </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/button4"
+            android:layout_width="75sp"
+            android:layout_height="75sp"
+            android:layout_margin="6dp"
+            android:background="@drawable/number_pad_button"
+            android:text="4"
+            android:textColor="#fff"
+            android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/button5"
+            android:layout_width="75sp"
+            android:layout_height="75sp"
+            android:layout_margin="6dp"
+            android:background="@drawable/number_pad_button"
+            android:text="5"
+            android:textColor="#fff"
+            android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/button6"
+            android:layout_width="75sp"
+            android:layout_height="75sp"
+            android:layout_margin="6dp"
+            android:background="@drawable/number_pad_button"
+            android:text="6"
+            android:textColor="#fff"
+            android:textSize="24sp" />
+
+    </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/button7"
+            android:layout_width="75sp"
+            android:layout_height="75sp"
+            android:layout_margin="6dp"
+            android:background="@drawable/number_pad_button"
+            android:text="7"
+            android:textColor="#fff"
+            android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/button8"
+            android:layout_width="75sp"
+            android:layout_height="75sp"
+            android:layout_margin="6dp"
+            android:background="@drawable/number_pad_button"
+            android:text="8"
+            android:textColor="#fff"
+            android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/button9"
+            android:layout_width="75sp"
+            android:layout_height="75sp"
+            android:layout_margin="6dp"
+            android:background="@drawable/number_pad_button"
+            android:text="9"
+            android:textColor="#fff"
+            android:textSize="24sp" />
+
+    </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/buttonInvisible"
+            android:layout_width="75sp"
+            android:layout_height="75sp"
+            android:layout_margin="6dp"
+            android:visibility="invisible"
+            android:textColor="#fff"
+            android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/button0"
+            android:layout_width="75sp"
+            android:layout_height="75sp"
+            android:layout_margin="6dp"
+            android:background="@drawable/number_pad_button"
+            android:text="0"
+            android:textColor="#fff"
+            android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/button_backspace"
+            android:layout_width="75sp"
+            android:layout_height="75sp"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="6dp"
+            android:background="@drawable/backspace_button_circle" />
+    </TableRow>
+
+</TableLayout>

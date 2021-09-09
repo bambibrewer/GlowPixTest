@@ -327,26 +327,22 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         val scale = context.resources.displayMetrics.density
         val pixelsHeight = (heightOfButton * scale + 0.5f).toInt()
         val pixelsWidth = (widthOfButton * scale + 0.5f).toInt()
-        params.width = pixelsWidth
         params.height = pixelsHeight
+        button.minWidth = pixelsWidth
+        button.minimumWidth = pixelsWidth
         //params.setMargins(0, 5, 20, 0)
         button.layoutParams = params
-        button.text = "267890"//text
+        button.text = "2"//text
         button.textSize = 28f
         button.setTextColor(ContextCompat.getColor(context, R.color.darkGray))
         val typeface: Typeface? = ResourcesCompat.getFont(context, R.font.raleway)
         button.typeface = typeface
         button.gravity = Gravity.CENTER
         button.setPadding(padding, 0, padding, 0)
-//        button.setOnClickListener { v: View ->
-//            val context = v.context
-//            (context as AbstractGlowPicsActivity).setSelectedBox(v)
-//            (context as AbstractGlowPicsActivity).showNumberPad(true, isSolution)
-//        }
-
-//        if (button.titleLabel?.intrinsicContentSize.width ?? 0 > widthOfButton) {
-//            button.sizeToFit()
-//        }
+        button.setOnClickListener { v: View ->
+            val context = v.context
+            (context as GlowPixActivity).showNumberPad(true, false)
+        }
 //        addBorder(button: button)
         return button
     }

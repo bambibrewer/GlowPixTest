@@ -373,12 +373,15 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
     }
 
     fun showNumberPad(isVisible: Boolean, showOnRight: Boolean, selectedBox: TextView? = this.selectedBox) {
-//        if (isVisible) {
-//            pictureName.clearFocus()        // Don't want text box to have focus when the numberpad is visible
-//        }
-//        val numberPad = findViewById<View>(R.id.fragmentNumberPad)
-//        if (!isVisible) {
-//            numberPad.visibility = View.INVISIBLE
+        if (isVisible) {
+            pictureName.clearFocus()        // Don't want text box to have focus when the numberpad is visible
+        }
+        showColorPicker(false)
+
+        val fragmentNumberPadView = findViewById<View>(R.id.fragmentNumberPad)
+
+        if (!isVisible) {
+            fragmentNumberPadView.visibility = View.INVISIBLE
 //            if (selectedBox != null) {
 //                selectedBox.setBackgroundResource(R.drawable.text_box)
 //                selectedBlock?.updateErrorFlag()
@@ -387,10 +390,10 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
 //
 //                // End of TO REMOVE
 //            }
-//            return
-//        }
+            return
+        }
 //
-//        showColorPalette(false)
+
 //        val numberBackground = ContextCompat.getDrawable(this, R.drawable.number_pad_popup)!!
 //
 //        if (selectedBox == null) {

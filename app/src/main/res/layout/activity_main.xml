@@ -190,16 +190,16 @@
             />
     </LinearLayout>
 
-    <!--<fragment
+    <fragment
         android:id="@+id/fragmentNumberPad"
-        android:name="com.birdbraintech.owlet.helpers.NumberPadFragment"
+        android:name="com.birdbraintech.glowpixtest.NumberPadFragmentGlowPix"
         android:layout_width="327dp"
         android:layout_height="416dp"
         android:layout_weight="1"
         android:gravity="center"
         android:visibility="invisible"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />-->
+        app:layout_constraintTop_toTopOf="parent" />
 
     <fragment
         android:id="@+id/fragmentColorPalette"
