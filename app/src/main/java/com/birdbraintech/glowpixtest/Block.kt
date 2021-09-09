@@ -2,11 +2,16 @@ package com.birdbraintech.glowpixtest
 
 import android.app.ActionBar
 import android.content.Context
+import android.graphics.Typeface
 import android.util.Log
+import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 
 // The view controller that contains the block should be a delegate so it can be notified when the blocks has changed
 interface BlockDelegate {
@@ -46,20 +51,13 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
     /* All of these variable control the size of the blocks, and the size of the number buttons and labels within them. */
     private val blockHeight: Float = 72.0F
     var heightOfRectangle: Float = (0.804 * blockHeight).toFloat()
-//    var heightOfButton: CGFloat {
-//        return 2*heightOfRectangle/3
-//    }
-//
-//    let originalBlockWidth: CGFloat = 261.1
-//    var widthOfButton: CGFloat {
-//        return originalBlockWidth/4
-//    }
-//
-//    var buttonSize: CGSize {
-//        return CGSize(width: widthOfButton, height: heightOfButton)
-//    }
-//
-//    let colorButtonSize = CGSize(width: 25, height: 25)
+
+    var heightOfButton: Float = 2*heightOfRectangle/3
+
+    val originalBlockWidth: Float = 261.1F
+    var widthOfButton: Float = originalBlockWidth/4
+
+    val colorButtonSize = 28
 //
 //    var labelWidth: CGFloat {
 //        return originalBlockWidth/10
@@ -122,7 +120,6 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 
 
     init {
-        Log.d("Blocks","created block")
         setBackgroundResource(R.drawable.block_white2)
 
         // Define the optional fields for the double addition block - it is the only one that uses them
@@ -269,7 +266,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 
 //        origin = CGPoint(x: originalBlockWidth/4, y: heightOfRectangle/6)
 //
-//        firstNumber = layoutButtonIfNotSelected(button: firstNumber, origin: origin)
+        firstNumber = layoutButtonIfNotSelected(button = firstNumber)
 //        origin.x += firstNumber.frame.width
 //
 //        operatorLabel.removeFromSuperview()
@@ -305,6 +302,55 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 //        imageView.frame = newFrame
     }
 
+    /// We don't want to remove a button if we are currently changing the number in it. If the given button is currently selected, this method simply returns
+    /// the button.  Otherwise, it removes the button from the imageView, creates a duplicate, adds it to the imageView, and returns it.
+    private fun layoutButtonIfNotSelected(button: Button): Button {
+        var buttonToReturn = button
+
+        if (selectedButton != button) {
+            this.removeView(button)
+            buttonToReturn = setupButton(button.text as String)
+            this.addView(buttonToReturn)
+            Log.d("Blocks", buttonToReturn.width.toString() + "  " + buttonToReturn.height)
+
+        }
+
+        return buttonToReturn
+    }
+
+    /* This function configures a button in the block. The buttons are where the user enters numbers.*/
+    private fun setupButton(text: String): Button {
+        val button = Button(context)
+        val padding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.displayMetrics).toInt()
+        button.setBackgroundResource(R.drawable.text_box)
+        val params = LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT)
+        val scale = context.resources.displayMetrics.density
+        val pixelsHeight = (heightOfButton * scale + 0.5f).toInt()
+        val pixelsWidth = (widthOfButton * scale + 0.5f).toInt()
+        params.width = pixelsWidth
+        params.height = pixelsHeight
+        //params.setMargins(0, 5, 20, 0)
+        button.layoutParams = params
+        button.text = "267890"//text
+        button.textSize = 28f
+        button.setTextColor(ContextCompat.getColor(context, R.color.darkGray))
+        val typeface: Typeface? = ResourcesCompat.getFont(context, R.font.raleway)
+        button.typeface = typeface
+        button.gravity = Gravity.CENTER
+        button.setPadding(padding, 0, padding, 0)
+//        button.setOnClickListener { v: View ->
+//            val context = v.context
+//            (context as AbstractGlowPicsActivity).setSelectedBox(v)
+//            (context as AbstractGlowPicsActivity).showNumberPad(true, isSolution)
+//        }
+
+//        if (button.titleLabel?.intrinsicContentSize.width ?? 0 > widthOfButton) {
+//            button.sizeToFit()
+//        }
+//        addBorder(button: button)
+        return button
+    }
+
     private fun addColorPickerPutton() {
         // Add color picker button
         this.removeView(colorPickerButton)
@@ -313,7 +359,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         this.addView(colorPickerButton)
         val params = LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT)
         val scale = context.resources.displayMetrics.density
-        val pixels = (28 * scale + 0.5f).toInt()
+        val pixels = (colorButtonSize * scale + 0.5f).toInt()
         params.width = pixels
         params.height = pixels
         params.setMargins(0, 5, 20, 0)
@@ -334,6 +380,8 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
     // Required for ColorPickerDelegate
     override fun colorSelected(color: PixelColor) {
         ledColor = color
+        blockDelegate?.updateGlowBoard()
+        blockDelegate?.savePicture()
     }
 
 }
