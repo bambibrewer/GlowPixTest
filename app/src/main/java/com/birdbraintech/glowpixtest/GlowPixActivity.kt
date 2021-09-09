@@ -3,8 +3,6 @@ package com.birdbraintech.glowpixtest
 import android.content.ClipData
 import android.graphics.Canvas
 import android.graphics.Point
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.DragEvent
@@ -13,16 +11,14 @@ import android.view.ViewTreeObserver
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.math.round
 
 
-class GlowPixActivity : AppCompatActivity(), BlockDelegate, ColorPickerDelegate {
+class GlowPixActivity : AppCompatActivity(), BlockDelegate {
 
-    private lateinit var colorPaletteFragment: ColorPaletteFragment
+    lateinit var colorPickerFragment: ColorPickerFragment
 
     private var blockBeingDragged: Block? = null
 
@@ -76,9 +72,8 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate, ColorPickerDelegate 
         }
         block_menu.setOnDragListener(dragListenerMenu)
 
-        colorPaletteFragment = supportFragmentManager.findFragmentById(R.id.fragmentColorPalette) as ColorPaletteFragment
-        colorPaletteFragment.colorPickerDelegate = this
-        //colorPaletteFragment.setExistingColor(PixelColor.white)
+        colorPickerFragment = supportFragmentManager.findFragmentById(R.id.fragmentColorPalette) as ColorPickerFragment
+        showColorPicker(false)
 
 
     }
@@ -432,7 +427,7 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate, ColorPickerDelegate 
     }
 
 
-    fun showColorPalette(isVisible: Boolean) {
+    fun showColorPicker(isVisible: Boolean, x:Float = 0.0f, y: Float = 0.0f, blockHeight: Float = 0.0f) {
         val colorPalette = findViewById<View>(R.id.fragmentColorPalette)
         if (!isVisible) {
             colorPalette.visibility = View.INVISIBLE
@@ -441,25 +436,15 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate, ColorPickerDelegate 
 
         showNumberPad(false, false)
 
-//        if (selectedBlock != null) {
-//            selectedBlock!!.getLocationOnScreen(selectedLocation)
-//            colorPalette.x = (selectedLocation[0] - colorPalette.width).toFloat()
-//            colorPalette.y = (selectedLocation[1] - colorPalette.height / 2 + blockHeight / 2).toFloat()
-//
-//            val brightness = selectedBlock!!.brightness
-//            updateBrightnessButtons(brightness)
-//        }
+        Log.d("Blocks", "color picker" + colorPalette.x.toString())
 
+        colorPalette.x = (x - colorPalette.width)
+        colorPalette.y = (y - colorPalette.height / 2 + blockHeight / 2)
 
         colorPalette.visibility = View.VISIBLE
     }
     override fun updateGlowBoard() {}
     override fun savePicture() {}
-
-    // Required for ColorPickerDelegate
-    override fun colorSelected(color: PixelColor) {
-        Log.d("Blocks",color.toString())
-    }
 
     companion object {
 

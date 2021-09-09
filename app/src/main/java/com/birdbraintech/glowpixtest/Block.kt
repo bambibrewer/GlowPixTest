@@ -5,7 +5,6 @@ import android.content.Context
 import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 
@@ -16,7 +15,7 @@ interface BlockDelegate {
 }
 
 
-class Block(val type: BlockType, val level: Level, context: Context): LinearLayout(context) {
+class Block(val type: BlockType, val level: Level, context: Context): LinearLayout(context), ColorPickerDelegate {
 
     //var imageView: ImageView
 
@@ -90,7 +89,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 
     val mathOperator = type.mathOperator
 
-    var colorPickerButton = TextView(context)
+    var colorPickerButton = Button(context)
     var startLabel = TextView(context)
     var firstNumber = Button(context)
     var operatorLabel = TextView(context)
@@ -265,25 +264,8 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 
     private fun layoutBlockLevels3and4()
     {
-        // Add color picker button
-        this.removeView(colorPickerButton)
-        colorPickerButton = TextView(this.context)
-        colorPickerButton.setBackgroundResource(ledColor.colorButtonImage)
-        val scale = context.resources.displayMetrics.density
-        val pixels = (28 * scale + 0.5f).toInt()
-        colorPickerButton!!.height = pixels
-        colorPickerButton!!.width = pixels
-        val params = LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT)
-        params.setMargins(0, 5, 20, 0)
-        colorPickerButton!!.layoutParams = params
-//        colorPickerButton!!.setOnClickListener {
-//            val context = context as GlowPixActivity
-//            //context.selectedBlock = this
-//            context.showColorPalette(true)
-//        }//{ v: View -> onClickColorPaletteButton(v, this) }
-        //colorPickerButton!!.setOnTouchListener(ButtonTouchListener())
-        colorPickerButton!!.isFocusable = false
-        this.addView(colorPickerButton)
+        addColorPickerPutton()
+
 
 //        origin = CGPoint(x: originalBlockWidth/4, y: heightOfRectangle/6)
 //
@@ -323,7 +305,34 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 //        imageView.frame = newFrame
     }
 
-    fun onClickColorPaletteButton(v: View, thisBlock: View?) {
-
+    private fun addColorPickerPutton() {
+        // Add color picker button
+        this.removeView(colorPickerButton)
+        colorPickerButton = Button(this.context)
+        colorPickerButton.setBackgroundResource(ledColor.colorButtonImage)
+        this.addView(colorPickerButton)
+        val params = LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT)
+        val scale = context.resources.displayMetrics.density
+        val pixels = (28 * scale + 0.5f).toInt()
+        params.width = pixels
+        params.height = pixels
+        params.setMargins(0, 5, 20, 0)
+        colorPickerButton.layoutParams = params
+        colorPickerButton.setOnClickListener {
+            val context = context as GlowPixActivity
+            context.colorPickerFragment.colorPickerDelegate = this
+            
+            // Find out where the block is to show the color picker popup
+            val selectedLocation = IntArray(2)
+            this.getLocationOnScreen(selectedLocation)
+            context.showColorPicker(true, x = selectedLocation[0].toFloat(), y = selectedLocation[1].toFloat(), blockHeight = heightOfRectangle)
+        }
+        colorPickerButton.isFocusable = false
     }
+
+    // Required for ColorPickerDelegate
+    override fun colorSelected(color: PixelColor) {
+        ledColor = color
+    }
+
 }

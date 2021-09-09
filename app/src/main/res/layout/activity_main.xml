@@ -203,7 +203,7 @@
 
     <fragment
         android:id="@+id/fragmentColorPalette"
-        android:name="com.birdbraintech.glowpixtest.ColorPaletteFragment"
+        android:name="com.birdbraintech.glowpixtest.ColorPickerFragment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"

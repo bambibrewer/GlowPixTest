@@ -13,7 +13,7 @@ interface ColorPickerDelegate {
     fun colorSelected(color: PixelColor)
 }
 
-class ColorPaletteFragment : Fragment() {
+class ColorPickerFragment : Fragment() {
 
     //var view: View? = null
 
