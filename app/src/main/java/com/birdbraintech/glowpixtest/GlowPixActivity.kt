@@ -1,13 +1,16 @@
 package com.birdbraintech.glowpixtest
 
 import android.content.ClipData
+import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Point
 import android.os.Bundle
 import android.util.Log
 import android.view.DragEvent
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewTreeObserver
+import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -62,11 +65,17 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
         // Set up the blocks on the left menu for this level
         setupMenu(Level.level3)
 
+        // Set up the touch listener to close popups when you touch the screen
+        workspace.setOnTouchListener(TouchListener())
+        math_layout.setOnTouchListener(TouchListener())
+
+        // Listener to drag blocks around workspace
         val dragListener = View.OnDragListener { _, dragEvent ->
             handleBlockMove(dragEvent)
         }
         workspace.setOnDragListener(dragListener)
 
+        // Listener to delete blocks by dragging over menu
         val dragListenerMenu = View.OnDragListener { _, dragEvent ->
             deleteBlocks(dragEvent)
         }
@@ -436,8 +445,6 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
 
         showNumberPad(false, false)
 
-        Log.d("Blocks", "color picker" + colorPalette.x.toString())
-
         colorPalette.x = (x - colorPalette.width)
         colorPalette.y = (y - colorPalette.height / 2 + blockHeight / 2)
 
@@ -479,6 +486,21 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
                 Pair(BlockType.division, R.drawable.menu_operator_division_nested)
             )
         )
+
+        // This class is used to close everything when the user touches the workspace
+        private class TouchListener : View.OnTouchListener {
+            override fun onTouch(view: View, event: MotionEvent): Boolean {
+                if (event.action == MotionEvent.ACTION_DOWN) {
+                    (view.context as GlowPixActivity).showNumberPad(isVisible = false, showOnRight = false)
+                    (view.context as GlowPixActivity).showColorPicker(false)
+
+                    // Hide the keyboard if the user is finished changing the name
+                    val imm = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(view!!.windowToken, 0)
+                }
+                return false
+            }
+        }
     }
 
 

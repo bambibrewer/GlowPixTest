@@ -54,9 +54,15 @@ class ColorPickerFragment : Fragment() {
         setButtonListeners()
     }
 
-    /* If a color was already selected, this function can be used to restore it. */
+    /* If a color was already selected, this function can be used to restore it. Also sets the corresponding brightness level. */
     fun setExistingColor(color: PixelColor) {
         this.color = color
+
+        brightnessLevel = when (color) {
+            PixelColor.white,PixelColor.magenta,PixelColor.blue,PixelColor.teal,PixelColor.green,PixelColor.yellow, PixelColor.red -> BrightnessLevel.bright
+            PixelColor.off -> BrightnessLevel.off
+            else -> BrightnessLevel.dim
+        }
     }
 
     fun setButtonListeners()
@@ -66,7 +72,6 @@ class ColorPickerFragment : Fragment() {
                 brightnessClicked(button)
           }
         }
-
 
         for (button in colorButtons) {
             button.setOnClickListener {

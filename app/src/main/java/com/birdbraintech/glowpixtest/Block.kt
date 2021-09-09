@@ -321,7 +321,8 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         colorPickerButton.setOnClickListener {
             val context = context as GlowPixActivity
             context.colorPickerFragment.colorPickerDelegate = this
-            
+            context.colorPickerFragment.setExistingColor(ledColor)
+
             // Find out where the block is to show the color picker popup
             val selectedLocation = IntArray(2)
             this.getLocationOnScreen(selectedLocation)
