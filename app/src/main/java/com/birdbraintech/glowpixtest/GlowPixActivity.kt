@@ -31,9 +31,6 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
     //Keep track of all the active blocks
     private val workspaceBlocks = mutableListOf<Block>()   // moveable blocks that can make chains
 
-    private var selectedBox: TextView? = null
-    var selectedBlock: Block? = null
-
     // This variable is used to keep track of a block that has been shifted by a ghost image
     private var shiftedBlock: Block? = null
         set(value)  {
@@ -387,6 +384,7 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
 
         if (!isVisible) {
             numberPad.visibility = View.INVISIBLE
+            numberPadFragment.numberPadDelegate?.keypadDismissed()
             return
         }
 

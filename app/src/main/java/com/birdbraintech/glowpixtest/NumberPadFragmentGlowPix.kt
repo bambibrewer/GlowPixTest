@@ -23,7 +23,7 @@ class NumberPadFragmentGlowPix : Fragment() {
     private val inflatedLayoutResource = R.layout.fragment_number_pad
 
     // Use this variable if you want to constrain the number to a particular number of digits
-    var maxNumberOfDigits: Int = 9
+    var maxNumberOfDigits: Int? = 9
 
     // This is a string representation of the number that the user is entering.
     private var numberString = ""

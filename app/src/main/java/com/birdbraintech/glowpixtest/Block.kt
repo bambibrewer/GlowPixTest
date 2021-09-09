@@ -42,9 +42,6 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
                 colorPickerButton.setBackgroundResource(value.colorButtonImage)
                 this.setBackgroundResource(value.blockImage)
 
-                // Have to layout the block to see the changes
-                layoutBlock()
-
             }
         }
 
@@ -108,18 +105,14 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
     var nestedChild2: Block? = null
 
     var selectedButton: Button? = null    // Button for which user is currently entering text
-//        set(value) {
-//            if (value == null) {      // if it is nil, want to unshift all the blocks
-////                if let viewController = imageView.findViewController() as? LevelViewController {
-////                    viewController.numberSelected = selectedButton
-////                }
-//            }
-//            field = value
-//        }
-//        // Let the view controller know so that it can open/close keypads
-
+        set(value) {
+            field?.setBackgroundResource(R.drawable.text_box)
+            value?.setBackgroundResource(R.drawable.text_box_selected)
+            field = value
+        }
 
     init {
+
         setBackgroundResource(R.drawable.block_white2)
 
         // Define the optional fields for the double addition block - it is the only one that uses them
@@ -263,10 +256,9 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
     {
         addColorPickerPutton()
 
-
-//        origin = CGPoint(x: originalBlockWidth/4, y: heightOfRectangle/6)
-//
         firstNumber = layoutButtonIfNotSelected(button = firstNumber)
+
+        secondNumber = layoutButtonIfNotSelected(button = secondNumber)
 //        origin.x += firstNumber.frame.width
 //
 //        operatorLabel.removeFromSuperview()
@@ -348,7 +340,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
             // Find out where the block is to show the color picker popup
             val selectedLocation = IntArray(2)
             this.getLocationOnScreen(selectedLocation)
-            context.showNumberPad(true, true, x = selectedLocation[0].toFloat() + button.x, y = selectedLocation[1].toFloat() + button.y,boxWidth = button.width.toFloat(), boxHeight = button.height.toFloat())
+            context.showNumberPad(true, false, x = selectedLocation[0].toFloat() + button.x, y = selectedLocation[1].toFloat() + button.y,boxWidth = button.width.toFloat(), boxHeight = button.height.toFloat())
         }
 //        addBorder(button: button)
         return button
