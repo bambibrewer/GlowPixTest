@@ -115,6 +115,8 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
         menuBlockView.scaleY = 1.2f
         // If you make a long click, start to drag the block
         val onLongClickListener = View.OnLongClickListener { view ->
+            showNumberPad(false, false)
+            showColorPicker(false)
             // A menu block creates a new block in the workspace
             val newBlock = Block(type,level,this)
             addBlockToWorkspace(newBlock)
@@ -236,6 +238,8 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
     }
 
     private fun startBlockDrag(view: View): Boolean {
+        showNumberPad(false, false)
+        showColorPicker(false)
         blockBeingDragged = view as? Block
         hideBlocks(true)
 

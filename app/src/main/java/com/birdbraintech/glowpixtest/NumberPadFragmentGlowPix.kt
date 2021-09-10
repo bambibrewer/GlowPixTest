@@ -18,6 +18,14 @@ interface NumberPadDelegate {
 class NumberPadFragmentGlowPix : Fragment() {
 
     var numberPadDelegate: NumberPadDelegate? = null
+    set(value) {
+        // If a button on a different block has been selected, we want to let the old delegate know it no longer
+        // has a keypad
+        if (field != value) {
+            field?.keypadDismissed()
+        }
+        field = value
+    }
 
 
     private val inflatedLayoutResource = R.layout.fragment_number_pad

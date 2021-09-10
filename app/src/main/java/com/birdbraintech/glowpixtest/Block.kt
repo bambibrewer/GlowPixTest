@@ -237,6 +237,8 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
     }
 
     private fun layoutBlock() {
+
+        // Should we remove all views here?
         if (isStart) {
             //layoutStartBlock()
         } else if (type == BlockType.equals) {
@@ -255,63 +257,33 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
     private fun layoutBlockLevels3and4()
     {
         addColorPickerPutton()
-
-        firstNumber = layoutButtonIfNotSelected(button = firstNumber)
-
-        secondNumber = layoutButtonIfNotSelected(button = secondNumber)
-//        origin.x += firstNumber.frame.width
-//
-//        operatorLabel.removeFromSuperview()
-//        operatorLabel = setupLabel(text: mathOperator, origin: origin)
-//        imageView.addSubview(operatorLabel)
-//        origin.x += operatorLabel.frame.width
-//
-//        secondNumber = layoutButtonIfNotSelected(button: secondNumber, origin: origin)
-//        origin.x += secondNumber.frame.width
-//
-//        if operatorLabel2 != nil {
-//            operatorLabel2?.removeFromSuperview()
-//            operatorLabel2 = setupLabel(text: mathOperator, origin: origin)
-//            imageView.addSubview(operatorLabel2!)
-//            origin.x += operatorLabel2!.frame.width
-//        }
-//
-//        if thirdNumber != nil {
-//            thirdNumber = layoutButtonIfNotSelected(button: thirdNumber!, origin: origin)
-//            origin.x += thirdNumber!.frame.width
-//        }
-//
-//        equalsLabel.removeFromSuperview()
-//        equalsLabel = setupLabel(text: "=", origin: origin)
-//        imageView.addSubview(equalsLabel)
-//        origin.x += equalsLabel.frame.width
-//
-//        answer = layoutButtonIfNotSelected(button: answer, origin: origin)
-//        origin.x += answer.frame.width
-//
-//        // Resize the frame of the block itself
-//        let newFrame = CGRect(x: imageView.frame.minX, y: imageView.frame.minY, width: origin.x + 10, height: blockHeight + 5)
-//        imageView.frame = newFrame
-    }
-
-    /// We don't want to remove a button if we are currently changing the number in it. If the given button is currently selected, this method simply returns
-    /// the button.  Otherwise, it removes the button from the imageView, creates a duplicate, adds it to the imageView, and returns it.
-    private fun layoutButtonIfNotSelected(button: Button): Button {
-        var buttonToReturn = button
-
-        if (selectedButton != button) {
-            this.removeView(button)
-            buttonToReturn = setupButton(button.text as String)
-            this.addView(buttonToReturn)
-            Log.d("Blocks", buttonToReturn.width.toString() + "  " + buttonToReturn.height)
-
+        firstNumber = addButton("")
+        addLabel(mathOperator)
+        secondNumber = addButton("")
+        if (type == BlockType.doubleAddition) {
+            addLabel(mathOperator)
+            thirdNumber = addButton("")
         }
-
-        return buttonToReturn
+        addLabel("=")
+        answer = addButton("")
     }
 
     /* This function configures a button in the block. The buttons are where the user enters numbers.*/
-    private fun setupButton(text: String): Button {
+    private fun addLabel(text: String) {
+        val label = TextView(context)
+        val padding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics).toInt()
+        label.text = text
+        label.textSize = 24f
+        label.setTextColor(ContextCompat.getColor(context, R.color.darkGray))
+        val typeface: Typeface? = ResourcesCompat.getFont(context, R.font.raleway)
+        label.typeface = typeface
+        label.gravity = Gravity.CENTER
+        label.setPadding(padding, 0, padding, 0)
+        this.addView(label)
+    }
+
+    /* This function configures a button in the block. The buttons are where the user enters numbers.*/
+    private fun addButton(text: String): Button {
         val button = Button(context)
         val padding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.displayMetrics).toInt()
         button.setBackgroundResource(R.drawable.text_box)
@@ -342,13 +314,13 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
             this.getLocationOnScreen(selectedLocation)
             context.showNumberPad(true, false, x = selectedLocation[0].toFloat() + button.x, y = selectedLocation[1].toFloat() + button.y,boxWidth = button.width.toFloat(), boxHeight = button.height.toFloat())
         }
-//        addBorder(button: button)
+        this.addView(button)
         return button
     }
 
     private fun addColorPickerPutton() {
         // Add color picker button
-        this.removeView(colorPickerButton)
+        //this.removeView(colorPickerButton)
         colorPickerButton = Button(this.context)
         colorPickerButton.setBackgroundResource(ledColor.colorButtonImage)
         this.addView(colorPickerButton)
@@ -410,4 +382,5 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         // Evaluate the blocks, update the error tags, and notify the block delegate that the blocks have changed.
         //evaluateDisplayAndUpdate()
     }
+
 }
