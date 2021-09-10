@@ -15,6 +15,7 @@ import androidx.core.content.res.ResourcesCompat
 
 // The view controller that contains the block should be a delegate so it can be notified when the blocks has changed
 interface BlockDelegate {
+    fun displayError(result: EvaluationOptions)
     fun updateGlowBoard()
     fun savePicture()
 }
@@ -51,17 +52,10 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 
     var heightOfButton: Float = 2*heightOfRectangle/3
 
-    val originalBlockWidth: Float = 261.1F
+    private val originalBlockWidth: Float = 261.1F
     var widthOfButton: Float = originalBlockWidth/4
 
-    val colorButtonSize = 28
-//
-//    var labelWidth: CGFloat {
-//        return originalBlockWidth/10
-//    }
-//    var labelSize: CGSize {
-//        return CGSize(width: labelWidth, height: heightOfButton)
-//    }
+    private val colorButtonSize = 28
 
     val offsetToNext: Float  //The distance along the y axis to place the next block.
         get() {
@@ -179,7 +173,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 //                b.isInactive = true
 //            }
 //        }
-//        b.evaluateDisplayAndUpdate()
+        b.evaluateDisplayAndUpdate()
         Log.d("Blocks","attaching")
         positionChainImages()
     }
@@ -202,7 +196,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 //                b.isInactive = true
 //            }
 //        }
-//        b.evaluateDisplayAndUpdate()
+        b.evaluateDisplayAndUpdate()
     }
 
     // Detach a block from the previous block in a vertical chain or from its parents, if it is nestable
@@ -233,7 +227,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 //            isInactive = false
 //        }
 //
-//        evaluateDisplayAndUpdate()
+        evaluateDisplayAndUpdate()
     }
 
     private fun layoutBlock() {
@@ -380,7 +374,155 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
     override fun keypadDismissed() {
         selectedButton = null
         // Evaluate the blocks, update the error tags, and notify the block delegate that the blocks have changed.
-        //evaluateDisplayAndUpdate()
+        evaluateDisplayAndUpdate()
     }
 
+    private fun checkExpression(expressionValue: Int, answerValue: Int?): EvaluationOptions {
+
+        val maxValue = if (level == Level.level4 || level == Level.level5) 144 else 120
+
+        return if ((1..maxValue).contains(expressionValue)) {
+            if (answerValue != null) {
+                if (expressionValue == answerValue) EvaluationOptions.correct else EvaluationOptions.incorrect
+            } else {
+                EvaluationOptions.incomplete
+            }
+        } else {
+            EvaluationOptions.offGlowBoard
+        }
+    }
+
+    // Extension to the Button class to help us get the numbers from the buttons
+    private fun Button.number(): Int? {
+        return text.toString().toIntOrNull()
+    }
+
+    private fun evaluate(): EvaluationOptions {
+        // If this function is called for the nesting operation blocks in level 5, we want to find the outermost block and evaluate it
+        if (type == BlockType.start) {
+            return EvaluationOptions.correct
+        }
+        else if (isNestable) {
+            var outermostBlock = this
+            while (outermostBlock.parent != null) {
+                outermostBlock = outermostBlock.parent!!
+            }
+            if (outermostBlock.type == BlockType.equals) {
+                return outermostBlock.evaluate()
+            } else {
+                return EvaluationOptions.incomplete   // nesting blocks that are not in an equals block are incomplete
+            }
+        } else if (type == BlockType.equals) {    // evaluate the equals blocks for level 5
+            if (nestedChild1 != null) {
+                if (nestedChild1!!.evaluateNested() != null) {
+                    return checkExpression(nestedChild1!!.evaluateNested()!!, answer.number())
+                } else {
+                    return EvaluationOptions.incomplete   // Either the answer or a button within the expression is blank
+                }
+            } else {    // There is no block nested inside the left side of equals block
+                return EvaluationOptions.incomplete
+            }
+        } else if (type == BlockType.doubleAddition) {  // this is the only one with three numbers
+            val num1 = firstNumber.number()
+            val num2 = secondNumber.number()
+            val num3 = thirdNumber?.number()
+            if ((num1 != null) && (num2 != null) && (num3 != null)) {
+                val expressionValue = num1 + num2 + num3
+                return checkExpression(expressionValue, answer.number())
+            } else {
+                return EvaluationOptions.incomplete
+            }
+        } else {       // Levels 1-4 all blocks except the double addition one
+            val num1 = firstNumber.number()
+            val num2 = secondNumber.number()
+            if ((num1 != null) && (num2 != null)) {
+                val expressionValue: Int = {
+                    when (mathOperator) {
+                        "+" -> num1 + num2
+                        "−" -> num1 - num2
+                        "×" -> num1 * num2
+                        else -> num1 / num2
+                    }
+                }()
+                return checkExpression( expressionValue, answer.number())
+            } else {
+                return EvaluationOptions.incomplete
+            }
+        }
+    }
+
+    // This function evaluates blocks that are only nested inside other blocks. It calls itself
+    // recursively because blocks may be nested inside other blocks. It returns either the
+    // value of the nested expression, or nil if one of the buttons in the nested expression does not contain a number
+    private fun evaluateNested(): Int? {
+        if (!isNestable) {
+            Log.e("GlowPix","Call to evaluateNested for a block that is not nested")
+        }
+
+        var num1: Int? = null
+        var num2: Int? = null
+        if (nestedChild1 != null) {
+            num1 = nestedChild1!!.evaluateNested()
+        } else if (firstNumber.number() != null) {
+            num1 = firstNumber.number()
+        }
+
+        if (nestedChild2 != null) {
+            num2 = nestedChild2!!.evaluateNested()
+        } else if (secondNumber.number() != null) {
+            num2 = secondNumber.number()
+        }
+
+        if ((num1 != null) && (num2 != null)) {
+            when (mathOperator) {
+                "+" -> return num1 + num2
+                "−" -> return num1 - num2
+                "×" -> return num1 * num2
+                else ->  return num1 / num2
+            }
+        } else {
+            return null
+        }
+    }
+
+    /* This function evaluates a block and displays an error tag if necessary. It also notifies the
+    blockDelegate to update the GlowBoard and save the picture, if necessary. It includes an optional
+    parameter to indicate whether the function is being used when the picture is being loaded.
+    In that case, you don't want to save the blocks (it messes up undo/redo) or call the function
+    recursively (because it is called for every block when loading the picture. */
+    private fun evaluateDisplayAndUpdate(loadingBlocks:Boolean = false) {
+//        if (isInactive) {
+//            return
+//        }
+
+        val result = evaluate()
+        // Don't display errors on nested blocks - want to display errors on the parent equals block
+        if (isNestable) {
+            var outermostBlock = this
+            while (outermostBlock.parent != null) {
+                outermostBlock = outermostBlock.parent!!
+            }
+            if (outermostBlock.type == BlockType.equals) {
+                outermostBlock.blockDelegate?.displayError(result)
+            }
+        } else {
+            blockDelegate?.displayError(result)
+
+            if ((level == Level.level1) || (level == Level.level2)) {
+                if (result != EvaluationOptions.correct) {
+                    //disableChain()
+                } else {
+//                    nextBlock?.isInactive = false
+//                    if !loadingBlocks {
+//                        nextBlock?.evaluateDisplayAndUpdate()
+//                    }
+                }
+            }
+        }
+
+//        if !loadingBlocks {
+//            blockDelegate?.updateGlowBoard()
+//            blockDelegate?.savePicture()
+//        }
+    }
 }

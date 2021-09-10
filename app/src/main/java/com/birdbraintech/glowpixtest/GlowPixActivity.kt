@@ -7,6 +7,7 @@ import android.graphics.Point
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.DragEvent
 import android.view.MotionEvent
 import android.view.View
@@ -446,6 +447,9 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
     }
     override fun updateGlowBoard() {}
     override fun savePicture() {}
+    override fun displayError(result: EvaluationOptions) {
+        Log.d("Blocks",result.toString())
+    }
 
     companion object {
 
