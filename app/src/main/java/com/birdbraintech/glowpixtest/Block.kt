@@ -13,6 +13,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import java.lang.Math.round
+import kotlin.math.roundToInt
 
 // The view controller that contains the block should be a delegate so it can be notified when the blocks has changed
 interface BlockDelegate {
@@ -115,13 +117,15 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
     init {
 
         // In the outer LinearLayout, we have a LinearLayout for the block and then the error flag, which may be invisible
-        this.gravity = Gravity.CENTER_VERTICAL
         blockLayout.setBackgroundResource(R.drawable.block_white2)
         this.addView(blockLayout)
 
         // Set up the errorflag
         errorFlag.setTextColor(Color.WHITE)
         errorFlag.textAlignment = View.TEXT_ALIGNMENT_CENTER
+        val params = LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT)
+        params.setMargins(0, (blockHeight - heightOfRectangle).roundToInt(), 0, 0)
+        errorFlag.layoutParams = params
         this.addView(errorFlag)
         displayError(EvaluationOptions.incomplete)
 
