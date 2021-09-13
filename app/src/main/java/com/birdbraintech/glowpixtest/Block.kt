@@ -164,13 +164,24 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
             if (nextBlock != null) {
                 nextBlock?.goToPosition(whenConnectingToBlock = this)
                 // STILL NEED TO HANDLE THESE
-//                nextBlock?.bringToFront()
+                nextBlock?.bringToFront() // Bring the image views to the front so that the last in the chain is on top
 //                if (nextBlock?.type == BlockType.equals) {
 //                    nextBlock.layoutEqualsBlock()
 //                }
                 nextBlock?.positionChainImages()
             }
         }
+    }
+
+
+    override fun bringToFront() {
+        super.bringToFront()
+//        if !isNestable {
+//            nextBlock?.bringToFront()
+//        }
+//        if canContainChildren {
+//            layoutBlock()
+//        }
     }
 
     //Attach a block chain below this one

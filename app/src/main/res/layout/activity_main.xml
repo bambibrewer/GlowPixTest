@@ -33,7 +33,7 @@
             <TextView
                 android:id="@+id/ghostBlock"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="80dp"
                 android:alpha="0.5"
                 android:background="@drawable/ghost_block"
                 android:visibility="gone"
