@@ -2,6 +2,7 @@ package com.birdbraintech.glowpixtest
 
 import android.app.ActionBar
 import android.content.Context
+import android.graphics.Color
 import android.graphics.Typeface
 import android.util.Log
 import android.util.TypedValue
@@ -15,12 +16,12 @@ import androidx.core.content.res.ResourcesCompat
 
 // The view controller that contains the block should be a delegate so it can be notified when the blocks has changed
 interface BlockDelegate {
-    fun displayError(result: EvaluationOptions, x: Int, y: Int)
     fun updateGlowBoard()
     fun savePicture()
 }
 
-
+// Each block consists of an outer LinearLayout that contains a LinearLayout for the block and
+// then the error flag, which may be invisible
 class Block(val type: BlockType, val level: Level, context: Context): LinearLayout(context), ColorPickerDelegate, NumberPadDelegate {
 
     //var imageView: ImageView
@@ -41,13 +42,13 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
             if (!isNestable && !isStart) {     // nestable blocks and start blocks should not have color buttons
                 // reset the color of the block and the color of the pick button
                 colorPickerButton.setBackgroundResource(value.colorButtonImage)
-                this.setBackgroundResource(value.blockImage)
+                blockLayout.setBackgroundResource(value.blockImage)
 
             }
         }
 
     /* All of these variable control the size of the blocks, and the size of the number buttons and labels within them. */
-    private val blockHeight: Float = 72.0F
+    private val blockHeight: Float = 80.0F
     var heightOfRectangle: Float = (0.804 * blockHeight).toFloat()
 
     var heightOfButton: Float = 2*heightOfRectangle/3
@@ -87,17 +88,14 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 
     val mathOperator = type.mathOperator
 
+    var blockLayout = LinearLayout(context)
+    val errorFlag = TextView(context)
     var colorPickerButton = Button(context)
-    var startLabel = TextView(context)
     var firstNumber = Button(context)
-    var operatorLabel = TextView(context)
     var secondNumber = Button(context)
     var operatorLabel2: TextView? = null
     var thirdNumber: Button? = null
-    var equalsLabel = TextView(context)
-    var answer =
-        Button(context)    // also stores the starting number for start blocks in levels 1 and 2
-    //var errorView = ErrorView()
+    var answer = Button(context)    // also stores the starting number for start blocks in levels 1 and 2
 
     // Only for blocks that nest
     var openParentheses = TextView(context)
@@ -116,7 +114,16 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 
     init {
 
-        setBackgroundResource(R.drawable.block_white2)
+        // In the outer LinearLayout, we have a LinearLayout for the block and then the error flag, which may be invisible
+        this.gravity = Gravity.CENTER_VERTICAL
+        blockLayout.setBackgroundResource(R.drawable.block_white2)
+        this.addView(blockLayout)
+
+        // Set up the errorflag
+        errorFlag.setTextColor(Color.WHITE)
+        errorFlag.textAlignment = View.TEXT_ALIGNMENT_CENTER
+        this.addView(errorFlag)
+        displayError(EvaluationOptions.incomplete)
 
         // Define the optional fields for the double addition block - it is the only one that uses them
         if (type == BlockType.doubleAddition) {
@@ -282,7 +289,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         label.typeface = typeface
         label.gravity = Gravity.CENTER
         label.setPadding(padding, 0, padding, 0)
-        this.addView(label)
+        blockLayout.addView(label)
     }
 
     /* This function configures a button in the block. The buttons are where the user enters numbers.*/
@@ -314,7 +321,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 
             context.showNumberPad(true, showPopupOnRight, x = locationOnScreen[0].toFloat() + button.x, y = locationOnScreen[1].toFloat() + button.y,boxWidth = button.width.toFloat(), boxHeight = button.height.toFloat())
         }
-        this.addView(button)
+        blockLayout.addView(button)
         return button
     }
 
@@ -323,7 +330,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         //this.removeView(colorPickerButton)
         colorPickerButton = Button(this.context)
         colorPickerButton.setBackgroundResource(ledColor.colorButtonImage)
-        this.addView(colorPickerButton)
+        blockLayout.addView(colorPickerButton)
         val params = LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT)
         val scale = context.resources.displayMetrics.density
         val pixels = (colorButtonSize * scale + 0.5f).toInt()
@@ -354,6 +361,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
     // These two functions required for NumberPadDelegate
     /* This is the function that is called when a user taps a number on the pop-up number pad. */
     override fun numberChanged(number: Int?) {
+        Log.d("Blocks", "height " + blockLayout.height)
         if (selectedButton != null) {
             if (number != null) {
                 selectedButton!!.text = number.toString()
@@ -509,10 +517,10 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
                 outermostBlock = outermostBlock.parent!!
             }
             if (outermostBlock.type == BlockType.equals) {
-                outermostBlock.blockDelegate?.displayError(result,locationOnScreen[0],locationOnScreen[1])
+                outermostBlock.displayError(result)
             }
         } else {
-            blockDelegate?.displayError(result,locationOnScreen[0],locationOnScreen[1])
+            displayError(result)
 
             if ((level == Level.level1) || (level == Level.level2)) {
                 if (result != EvaluationOptions.correct) {
@@ -530,5 +538,21 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 //            blockDelegate?.updateGlowBoard()
 //            blockDelegate?.savePicture()
 //        }
+    }
+
+    private fun displayError(result:EvaluationOptions) {
+        when (result) {
+            EvaluationOptions.incomplete, EvaluationOptions.correct -> errorFlag.visibility = View.INVISIBLE
+            EvaluationOptions.incorrect -> {
+                errorFlag.setBackgroundResource(R.drawable.error_flag_red)
+                errorFlag.setText(R.string.incorrect_error)
+                errorFlag.visibility = View.VISIBLE
+            }
+            EvaluationOptions.offGlowBoard -> {
+                errorFlag.setBackgroundResource(R.drawable.error_flag_yellow)
+                errorFlag.setText(R.string.offgrid_error)
+                errorFlag.visibility = View.VISIBLE
+            }
+        }
     }
 }
