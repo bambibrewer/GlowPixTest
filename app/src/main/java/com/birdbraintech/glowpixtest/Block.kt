@@ -15,7 +15,7 @@ import androidx.core.content.res.ResourcesCompat
 
 // The view controller that contains the block should be a delegate so it can be notified when the blocks has changed
 interface BlockDelegate {
-    fun displayError(result: EvaluationOptions)
+    fun displayError(result: EvaluationOptions, x: Int, y: Int)
     fun updateGlowBoard()
     fun savePicture()
 }
@@ -72,6 +72,15 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
             }
             return (0.4 * blockHeight).toFloat()
         }
+
+    // Find out where the block is to show the color picker popup
+    val locationOnScreen: IntArray
+    get() {
+        // Find out where the block is to show the color picker popup
+        val selectedLocation = IntArray(2)
+        this.getLocationOnScreen(selectedLocation)
+        return selectedLocation
+    }
 
     var nextBlock: Block? = null//the block to be executed after this one
     var previousBlock: Block? = null//block before this one on chain
@@ -251,15 +260,15 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
     private fun layoutBlockLevels3and4()
     {
         addColorPickerPutton()
-        firstNumber = addButton("")
+        firstNumber = addButton("",showPopupOnRight = false)
         addLabel(mathOperator)
-        secondNumber = addButton("")
+        secondNumber = addButton("",showPopupOnRight = false)
         if (type == BlockType.doubleAddition) {
             addLabel(mathOperator)
-            thirdNumber = addButton("")
+            thirdNumber = addButton("",showPopupOnRight = false)
         }
         addLabel("=")
-        answer = addButton("")
+        answer = addButton("",showPopupOnRight = true)
     }
 
     /* This function configures a button in the block. The buttons are where the user enters numbers.*/
@@ -277,7 +286,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
     }
 
     /* This function configures a button in the block. The buttons are where the user enters numbers.*/
-    private fun addButton(text: String): Button {
+    private fun addButton(text: String,showPopupOnRight: Boolean): Button {
         val button = Button(context)
         val padding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.displayMetrics).toInt()
         button.setBackgroundResource(R.drawable.text_box)
@@ -303,10 +312,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
             context.numberPadFragment.numberPadDelegate = this
             context.numberPadFragment.resetNumber()
 
-            // Find out where the block is to show the color picker popup
-            val selectedLocation = IntArray(2)
-            this.getLocationOnScreen(selectedLocation)
-            context.showNumberPad(true, false, x = selectedLocation[0].toFloat() + button.x, y = selectedLocation[1].toFloat() + button.y,boxWidth = button.width.toFloat(), boxHeight = button.height.toFloat())
+            context.showNumberPad(true, showPopupOnRight, x = locationOnScreen[0].toFloat() + button.x, y = locationOnScreen[1].toFloat() + button.y,boxWidth = button.width.toFloat(), boxHeight = button.height.toFloat())
         }
         this.addView(button)
         return button
@@ -333,7 +339,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
             // Find out where the block is to show the color picker popup
             val selectedLocation = IntArray(2)
             this.getLocationOnScreen(selectedLocation)
-            context.showColorPicker(true, x = selectedLocation[0].toFloat(), y = selectedLocation[1].toFloat(), blockHeight = heightOfRectangle)
+            context.showColorPicker(true, x = locationOnScreen[0].toFloat(), y = locationOnScreen[1].toFloat(), blockHeight = heightOfRectangle)
         }
         colorPickerButton.isFocusable = false
     }
@@ -503,10 +509,10 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
                 outermostBlock = outermostBlock.parent!!
             }
             if (outermostBlock.type == BlockType.equals) {
-                outermostBlock.blockDelegate?.displayError(result)
+                outermostBlock.blockDelegate?.displayError(result,locationOnScreen[0],locationOnScreen[1])
             }
         } else {
-            blockDelegate?.displayError(result)
+            blockDelegate?.displayError(result,locationOnScreen[0],locationOnScreen[1])
 
             if ((level == Level.level1) || (level == Level.level2)) {
                 if (result != EvaluationOptions.correct) {

@@ -447,7 +447,7 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
     }
     override fun updateGlowBoard() {}
     override fun savePicture() {}
-    override fun displayError(result: EvaluationOptions) {
+    override fun displayError(result: EvaluationOptions, x: Int, y: Int) {
         Log.d("Blocks",result.toString())
     }
 
