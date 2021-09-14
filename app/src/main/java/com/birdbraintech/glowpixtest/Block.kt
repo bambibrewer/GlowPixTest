@@ -310,7 +310,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         if (isStart) {
             layoutStartBlock()
         } else if (type == BlockType.equals) {
-            //layoutEqualsBlock()
+            layoutEqualsBlock()
         } else if (isNestable) {
             //layoutNestedBlock()
         } else if (level == Level.level1) {
@@ -386,6 +386,27 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         answer = addButton("",showPopupOnRight = true)
     }
 
+    private fun layoutEqualsBlock() {
+        //blockLayout.removeAllViews()
+        addColorPickerPutton()
+
+        //firstNumber.removeFromSuperview()
+        if (nestedChild1 != null) {
+//            nestedChild1?.imageView.frame.origin.x = imageView.frame.origin.x + origin.x
+//            nestedChild1?.imageView.frame.origin.y = imageView.frame.origin.y + 0.5*(heightOfRectangle - (nestedChild1?.imageView.frame.height ?? 0))
+//            nestedChild1?.bringToFront()
+//            nestedChild1?.layoutNestedBlock()
+//            origin.x += nestedChild1?.imageView.frame.width ?? 0
+        } else {
+            firstNumber = addButton(context.getString(R.string.add_block),false)
+            firstNumber.setTextColor(ContextCompat.getColor(context, R.color.sectionTeal))
+            firstNumber.isClickable = false     // Can't add a number here
+        }
+
+        addLabel("=")
+        answer = addButton("",showPopupOnRight = true)
+    }
+
     /* This function configures a button in the block. The buttons are where the user enters numbers.*/
     private fun addLabel(text: String) {
         val label = TextView(context)
@@ -415,6 +436,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         //params.setMargins(0, 5, 20, 0)
         button.layoutParams = params
         button.text = text
+        button.isAllCaps = false
         button.textSize = 24f
         button.setTextColor(ContextCompat.getColor(context, R.color.darkGray))
         val typeface: Typeface? = ResourcesCompat.getFont(context, R.font.raleway)

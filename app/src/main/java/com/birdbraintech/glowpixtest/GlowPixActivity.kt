@@ -64,7 +64,8 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
         })
 
         // Set up the blocks on the left menu for this level
-        setupMenu(Level.level2)
+        val level = Level.level5
+        setupMenu(level)
 
         // Set up the touch listener to close popups when you touch the screen
         workspace.setOnTouchListener(TouchListener())
@@ -92,25 +93,26 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
 //            loadPictureBlocksIntoWorkspace()
 //        } else {
             // Start off with a start block and clear the GlowBoard
-            addStartBlock(Level.level2)
+            val startBlock = addStartBlock(level)
            // glowBoard?.resetScreen()
 
             // for level 5, also want to add the first equals block
-//            if picture.level == .level5 {
-//                let firstEquals = Block(ofType: .equals, for: picture.level)
-//                addBlockToWorkspace(firstEquals)
-//                startBlock.attachBlock(firstEquals)
-//            }
-       // }
+        if (level == Level.level5) {
+            val firstEquals = Block(BlockType.equals, level, this)
+            addBlockToWorkspace(firstEquals)
+            startBlock.attachBlock(firstEquals)
+            firstEquals.visibility = View.VISIBLE
+        }
 
     }
 
-    private fun addStartBlock(level: Level) {
+    private fun addStartBlock(level: Level): Block {
         val startBlock = Block(BlockType.start, level, this)
         addBlockToWorkspace(startBlock)
         startBlock.visibility = View.VISIBLE
         startBlock.x = workspace.width/2F + 200F
         startBlock.y = workspace.height/2F + 50F
+        return startBlock
     }
 
     // This function sets up the available blocks for each level
