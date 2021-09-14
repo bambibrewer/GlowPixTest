@@ -392,7 +392,7 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
     private fun addGhostImage(ofBlock: Block, atPosition: Pair<Float,Float>) {
         ghostBlock.x = atPosition.first
         ghostBlock.y = atPosition.second
-        ghostBlock.width = ofBlock.width
+        ghostBlock.width = ofBlock.blockLayout.width
         ghostBlock.visibility = View.VISIBLE
     }
 

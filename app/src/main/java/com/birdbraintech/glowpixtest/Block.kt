@@ -357,12 +357,11 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         blockLayout.removeAllViews()
         addColorPickerPutton()
         firstNumber = addDisabledButton(getPreviousAnswer())
-        Log.d("Blocks ",mathOperator + "  " + type.toString())
         addLabel(mathOperator)
         val secondNumString = if ((type == BlockType.addition1 || type == BlockType.subtraction1)) "1" else "10"
         secondNumber = addDisabledButton(secondNumString)
         addLabel("=")
-        answer = addButton("",showPopupOnRight = true)
+        answer = addButton(answer.text.toString(),showPopupOnRight = true)
     }
 
     private fun layoutBlockLevels3and4()
@@ -447,13 +446,13 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         button.typeface = typeface
         button.gravity = Gravity.CENTER
         button.setPadding(padding, 0, padding, 0)
+        button.isClickable = false      // make touches pass through
         blockLayout.addView(button)
         return button
     }
 
     private fun addColorPickerPutton() {
         // Add color picker button
-        //this.removeView(colorPickerButton)
         colorPickerButton = Button(this.context)
         colorPickerButton.setBackgroundResource(ledColor.colorButtonImage)
         blockLayout.addView(colorPickerButton)
