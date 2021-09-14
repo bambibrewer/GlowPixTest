@@ -290,7 +290,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         previousBlock = null
 
         if ((level == Level.level1) || (level == Level.level2)) {
-            layoutBlock()        // To change the first number in chained blocks (Level 1 and 2) when they are detached
+            firstNumber.text = ""      // To change the first number in chained blocks (Level 1 and 2) when they are detached
             isInactive = false
         }
 
@@ -307,7 +307,6 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
     }
 
     private fun layoutBlock() {
-
         if (isStart) {
             layoutStartBlock()
         } else if (type == BlockType.equals) {
@@ -317,7 +316,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         } else if (level == Level.level1) {
             layoutBlockLevel1()
         } else if (level == Level.level2) {
-            //layoutBlockLevel2()
+            layoutBlockLevel2()
         } else {
             layoutBlockLevels3and4()
         }
@@ -328,7 +327,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         val scale = context.resources.displayMetrics.density
         val pixelsHeight = (blockHeight * scale + 0.5f).toInt()
         blockLayout.layoutParams.height = pixelsHeight
-        blockLayout.gravity = Gravity.CENTER_VERTICAL
+        blockLayout.gravity = Gravity.CENTER
 
         // add the start label
         val startString = if ((level == Level.level1) || (level == Level.level2)) context.getString(R.string.start_chained) else context.getString(R.string.start)
@@ -348,8 +347,6 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
             answer = addButton("",showPopupOnRight = true)
 
         }
-
-
     }
 
     private fun layoutBlockLevel1()
@@ -360,6 +357,17 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         addLabel(mathOperator)
         val secondNumString = if ((type == BlockType.addition1 || type == BlockType.subtraction1)) "1" else "10"
         secondNumber = addDisabledButton(secondNumString)
+        addLabel("=")
+        answer = addButton(answer.text.toString(),showPopupOnRight = true)
+    }
+
+    private fun layoutBlockLevel2()
+    {
+        blockLayout.removeAllViews()
+        addColorPickerPutton()
+        firstNumber = addDisabledButton(getPreviousAnswer())
+        addLabel(mathOperator)
+        secondNumber = addButton(secondNumber.text.toString(),showPopupOnRight = false)
         addLabel("=")
         answer = addButton(answer.text.toString(),showPopupOnRight = true)
     }

@@ -64,7 +64,7 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
         })
 
         // Set up the blocks on the left menu for this level
-        setupMenu(Level.level1)
+        setupMenu(Level.level2)
 
         // Set up the touch listener to close popups when you touch the screen
         workspace.setOnTouchListener(TouchListener())
@@ -92,7 +92,7 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
 //            loadPictureBlocksIntoWorkspace()
 //        } else {
             // Start off with a start block and clear the GlowBoard
-            addStartBlock(Level.level1)
+            addStartBlock(Level.level2)
            // glowBoard?.resetScreen()
 
             // for level 5, also want to add the first equals block
