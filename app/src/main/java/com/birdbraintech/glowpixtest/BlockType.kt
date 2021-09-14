@@ -1,5 +1,7 @@
 package com.birdbraintech.glowpixtest
 
+import android.util.Log
+
 enum class BlockType {
     start, addition, addition1, addition10, doubleAddition, subtraction, subtraction1, subtraction10, multiplication, division, equals;
 

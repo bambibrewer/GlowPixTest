@@ -13,7 +13,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import java.lang.Math.round
 import kotlin.math.roundToInt
 
 // The view controller that contains the block should be a delegate so it can be notified when the blocks has changed
@@ -26,7 +25,6 @@ interface BlockDelegate {
 // then the error flag, which may be invisible
 class Block(val type: BlockType, val level: Level, context: Context): LinearLayout(context), ColorPickerDelegate, NumberPadDelegate {
 
-    //var imageView: ImageView
 
     var blockDelegate: BlockDelegate? = null
 
@@ -114,10 +112,49 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
             field = value
         }
 
+    var isFirstInChain: Boolean = ((parent == null) && (previousBlock == null))
+
+    var isInactive: Boolean = false
+        set(value) {
+            field = value
+            if (isInactive) {
+                blockLayout.setBackgroundResource(R.drawable.block_gray2)
+
+                // Have to layout the block to see the changes
+                //layoutBlock()
+
+                // Disabled block should not have errors
+                displayError(EvaluationOptions.incomplete)
+
+                // Disable buttons
+                answer.isEnabled = false
+                secondNumber.isEnabled = false
+                colorPickerButton.isEnabled = false
+            } else {
+                blockLayout.setBackgroundResource(ledColor.blockImage)
+
+                // Have to layout the block to see the changes
+                //layoutBlock()
+
+                // Enable buttons
+                answer.isEnabled = true
+                secondNumber.isEnabled = true
+                colorPickerButton.isEnabled = true
+            }
+        }
+
+    // Set up the structure - in the outer LinearLayout, we have a LinearLayout for the block and
+    // then the error flag, which may be invisible
     init {
 
-        // In the outer LinearLayout, we have a LinearLayout for the block and then the error flag, which may be invisible
-        blockLayout.setBackgroundResource(R.drawable.block_white2)
+        // Set up the block first
+        if (type == BlockType.start) {
+            blockLayout.setBackgroundResource(R.drawable.start_block_background)
+        } else if (level == Level.level5 && type != BlockType.equals) {
+            blockLayout.setBackgroundResource(R.drawable.block_nested_transparent)
+        } else {
+            blockLayout.setBackgroundResource(R.drawable.block_white2)
+        }
         this.addView(blockLayout)
 
         // Set up the errorflag
@@ -159,7 +196,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         val y = whenConnectingToBlock.y + whenConnectingToBlock.offsetToNext + this.offsetToPrevious
 
         this.x = x
-        this.y = y //- this.height/2
+        this.y = y
     }
 
     // Position the vertical stack of blocks
@@ -197,15 +234,14 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         b.previousBlock = this
 
         // To change the first number in a chained block (Level 1 and 2) when it is attached
-//        if (level == .level1) || (level == .level2) {
-//            b.layoutBlock()        // To change the first number in chained blocks (Level 1 and 2) when they are detached
-//            // Check if block should be grayed out
-//            if b.previousBlock?.isInactive == true || b.previousBlock?.evaluate() != .correct {
-//                b.isInactive = true
-//            }
-//        }
+        if ((level == Level.level1) || (level == Level.level2)) {
+            b.layoutBlock()        // To change the first number in chained blocks (Level 1 and 2) when they are detached
+            // Check if block should be grayed out
+            if ((b.previousBlock?.isInactive == true) || (b.previousBlock?.evaluate() != EvaluationOptions.correct)) {
+                b.isInactive = true
+            }
+        }
         b.evaluateDisplayAndUpdate()
-        Log.d("Blocks","attaching")
         positionChainImages()
     }
 
@@ -219,14 +255,14 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         }
 
         // To change the first number in a chained block (Level 1 and 2) when it is attached
-//        if (level == Level.level1) || (level == Level.level2) {
-//            b.layoutBlock()        // To change the first number in chained blocks (Level 1 and 2) when they are detached
-//
-//            // Check if block should be grayed out
-//            if b.previousBlock?.isInactive == true || b.previousBlock?.evaluate() != .correct {
-//                b.isInactive = true
-//            }
-//        }
+        if ((level == Level.level1) || (level == Level.level2)) {
+            b.layoutBlock()        // To change the first number in chained blocks (Level 1 and 2) when they are detached
+
+            // Check if block should be grayed out
+            if ((b.previousBlock?.isInactive == true) || (b.previousBlock?.evaluate() != EvaluationOptions.correct)) {
+                b.isInactive = true
+            }
+        }
         b.evaluateDisplayAndUpdate()
     }
 
@@ -253,30 +289,80 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         }
         previousBlock = null
 
-//        if (level == .level1) || (level == .level2) {
-//            layoutBlock()        // To change the first number in chained blocks (Level 1 and 2) when they are detached
-//            isInactive = false
-//        }
-//
+        if ((level == Level.level1) || (level == Level.level2)) {
+            layoutBlock()        // To change the first number in chained blocks (Level 1 and 2) when they are detached
+            isInactive = false
+        }
+
         evaluateDisplayAndUpdate()
+    }
+
+    // Disables every block below this one
+    private fun disableChain() {
+        var next = nextBlock
+        while (next != null) {
+            next?.isInactive = true
+            next = next?.nextBlock
+        }
     }
 
     private fun layoutBlock() {
 
-        // Should we remove all views here?
         if (isStart) {
-            //layoutStartBlock()
+            layoutStartBlock()
         } else if (type == BlockType.equals) {
             //layoutEqualsBlock()
         } else if (isNestable) {
             //layoutNestedBlock()
         } else if (level == Level.level1) {
-            //layoutBlockLevel1()
+            layoutBlockLevel1()
         } else if (level == Level.level2) {
             //layoutBlockLevel2()
         } else {
             layoutBlockLevels3and4()
         }
+    }
+
+    private fun layoutStartBlock() {
+        // Resize the frame of the block itself
+        val scale = context.resources.displayMetrics.density
+        val pixelsHeight = (blockHeight * scale + 0.5f).toInt()
+        blockLayout.layoutParams.height = pixelsHeight
+        blockLayout.gravity = Gravity.CENTER_VERTICAL
+
+        // add the start label
+        val startString = if ((level == Level.level1) || (level == Level.level2)) context.getString(R.string.start_chained) else context.getString(R.string.start)
+        val label = TextView(context)
+        val padding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics).toInt()
+        label.text = startString
+        label.textSize = 24f
+        label.setTextColor(ContextCompat.getColor(context, R.color.white))
+        val typeface: Typeface? = ResourcesCompat.getFont(context, R.font.raleway_bold)
+        label.typeface = typeface
+        label.gravity = Gravity.CENTER
+        label.setPadding(padding, 0, padding, 0)
+        blockLayout.addView(label)
+
+        // add a number button for levels 1 and 2
+        if ((level == Level.level1) || (level == Level.level2)) {
+            answer = addButton("",showPopupOnRight = true)
+
+        }
+
+
+    }
+
+    private fun layoutBlockLevel1()
+    {
+        blockLayout.removeAllViews()
+        addColorPickerPutton()
+        firstNumber = addDisabledButton(getPreviousAnswer())
+        Log.d("Blocks ",mathOperator + "  " + type.toString())
+        addLabel(mathOperator)
+        val secondNumString = if ((type == BlockType.addition1 || type == BlockType.subtraction1)) "1" else "10"
+        secondNumber = addDisabledButton(secondNumString)
+        addLabel("=")
+        answer = addButton("",showPopupOnRight = true)
     }
 
     private fun layoutBlockLevels3and4()
@@ -340,6 +426,31 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         return button
     }
 
+    /* Some of the numbers in Levels 1 and 2 are disabled buttons. This function configures those.*/
+    private fun addDisabledButton(text: String): Button {
+        val button = Button(context)
+        val padding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.displayMetrics).toInt()
+        button.setBackgroundResource(R.drawable.text_box_borderless)
+        val params = LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT)
+        val scale = context.resources.displayMetrics.density
+        val pixelsHeight = (heightOfButton * scale + 0.5f).toInt()
+        val pixelsWidth = (widthOfButton * scale + 0.5f).toInt()
+        params.height = pixelsHeight
+        button.minWidth = pixelsWidth
+        button.minimumWidth = pixelsWidth
+        //params.setMargins(0, 5, 20, 0)
+        button.layoutParams = params
+        button.text = text
+        button.textSize = 24f
+        button.setTextColor(ContextCompat.getColor(context, R.color.darkGray))
+        val typeface: Typeface? = ResourcesCompat.getFont(context, R.font.raleway)
+        button.typeface = typeface
+        button.gravity = Gravity.CENTER
+        button.setPadding(padding, 0, padding, 0)
+        blockLayout.addView(button)
+        return button
+    }
+
     private fun addColorPickerPutton() {
         // Add color picker button
         //this.removeView(colorPickerButton)
@@ -376,27 +487,19 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
     // These two functions required for NumberPadDelegate
     /* This is the function that is called when a user taps a number on the pop-up number pad. */
     override fun numberChanged(number: Int?) {
-        Log.d("Blocks", "height " + blockLayout.height)
         if (selectedButton != null) {
             if (number != null) {
                 selectedButton!!.text = number.toString()
             } else {
                 selectedButton!!.text = ""
             }
-        }
-//            if (button.titleLabel?.intrinsicContentSize.width ?? 0 > widthOfButton) {
-//            button.sizeToFit()
-//            addBorder(button: button)
-            // Since button has gotten bigger, we need to layout the block again to adjust
-            //layoutBlock()
-        //}
 
             // If this is level 1 or 2, changing the answer changes the next block as well (remember
             // that the level 1 and 2 start blocks store the starting number in answer too)
-//            if button == answer && (level == .level1 || level == .level2)  {
-//                nextBlock?.layoutBlock()
-//            }
-        //}
+            if ((selectedButton == answer) && (level == Level.level1 || level == Level.level2))  {
+                nextBlock?.layoutBlock()
+            }
+        }
     }
 
     /* This function is called when the keypad is dismissed */
@@ -514,15 +617,25 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         }
     }
 
+    // This function is used in Levels 1 and 2, where the answer to the previous block is the first number in the next
+    // one. For the start blocks in levels 1 and 2, the starting number is also stored in the block's answer field.
+    private fun getPreviousAnswer(): String {
+        return if (previousBlock == null) {
+            ""
+        } else {
+            previousBlock?.answer?.text.toString()
+        }
+    }
+
     /* This function evaluates a block and displays an error tag if necessary. It also notifies the
     blockDelegate to update the GlowBoard and save the picture, if necessary. It includes an optional
     parameter to indicate whether the function is being used when the picture is being loaded.
     In that case, you don't want to save the blocks (it messes up undo/redo) or call the function
     recursively (because it is called for every block when loading the picture. */
     private fun evaluateDisplayAndUpdate(loadingBlocks:Boolean = false) {
-//        if (isInactive) {
-//            return
-//        }
+        if (isInactive) {
+            return
+        }
 
         val result = evaluate()
         // Don't display errors on nested blocks - want to display errors on the parent equals block
@@ -539,19 +652,19 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 
             if ((level == Level.level1) || (level == Level.level2)) {
                 if (result != EvaluationOptions.correct) {
-                    //disableChain()
+                    disableChain()
                 } else {
-//                    nextBlock?.isInactive = false
-//                    if !loadingBlocks {
-//                        nextBlock?.evaluateDisplayAndUpdate()
-//                    }
+                    nextBlock?.isInactive = false
+                    //if !loadingBlocks {
+                        nextBlock?.evaluateDisplayAndUpdate()
+                    //}
                 }
             }
         }
 
 //        if !loadingBlocks {
-//            blockDelegate?.updateGlowBoard()
-//            blockDelegate?.savePicture()
+            blockDelegate?.updateGlowBoard()
+            blockDelegate?.savePicture()
 //        }
     }
 

@@ -64,7 +64,7 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
         })
 
         // Set up the blocks on the left menu for this level
-        setupMenu(Level.level3)
+        setupMenu(Level.level1)
 
         // Set up the touch listener to close popups when you touch the screen
         workspace.setOnTouchListener(TouchListener())
@@ -87,7 +87,30 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
         showColorPicker(false)
         showNumberPad(false, false)
 
+//        if picture.hasBlocks {
+//            // load the picture's blocks into the workspace
+//            loadPictureBlocksIntoWorkspace()
+//        } else {
+            // Start off with a start block and clear the GlowBoard
+            addStartBlock(Level.level1)
+           // glowBoard?.resetScreen()
 
+            // for level 5, also want to add the first equals block
+//            if picture.level == .level5 {
+//                let firstEquals = Block(ofType: .equals, for: picture.level)
+//                addBlockToWorkspace(firstEquals)
+//                startBlock.attachBlock(firstEquals)
+//            }
+       // }
+
+    }
+
+    private fun addStartBlock(level: Level) {
+        val startBlock = Block(BlockType.start, level, this)
+        addBlockToWorkspace(startBlock)
+        startBlock.visibility = View.VISIBLE
+        startBlock.x = workspace.width/2F + 200F
+        startBlock.y = workspace.height/2F + 50F
     }
 
     // This function sets up the available blocks for each level
@@ -129,7 +152,6 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
     }
 
     private fun addBlockToWorkspace(block: Block) {
-
         block.blockDelegate = this
 
         // If you make a long click, start to drag the block
@@ -160,7 +182,6 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
 
                     blockBeingDragged?.x = dragEvent.x - (blockBeingDragged?.width?.div(2) ?: 0)
                     blockBeingDragged?.y = dragEvent.y - (blockBeingDragged?.height?.div(2) ?: 0)
-
                     // We also need to update the position of any children below this block
 
                     if (blockBeingDragged!!.canContainChildren) {
@@ -456,7 +477,7 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
                 Pair(BlockType.addition1, R.drawable.menu_operator_add_one),
                 Pair(BlockType.addition10, R.drawable.menu_operator_add_ten),
                 Pair(BlockType.subtraction1, R.drawable.menu_operator_subtract_one),
-                Pair(BlockType.addition10, R.drawable.menu_operator_subtract_ten)
+                Pair(BlockType.subtraction10, R.drawable.menu_operator_subtract_ten)
             ),
             Level.level2 to listOf(
                 Pair(BlockType.addition, R.drawable.menu_operator_addition),
