@@ -13,6 +13,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -26,6 +27,7 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
 
     lateinit var colorPickerFragment: ColorPickerFragment
     lateinit var numberPadFragment: NumberPadFragmentGlowPix
+    lateinit var level: Level
 
     private var blockBeingDragged: Block? = null
 
@@ -64,7 +66,7 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
         })
 
         // Set up the blocks on the left menu for this level
-        val level = Level.level5
+        level = Level.level5
         setupMenu(level)
 
         // Set up the touch listener to close popups when you touch the screen
@@ -187,10 +189,10 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
                     // We also need to update the position of any children below this block
 
                     if (blockBeingDragged!!.canContainChildren) {
-//                        gestureBlock.layoutNestedBlocksOfTree(containing: gestureBlock)
-//                        if gestureBlock.type == .equals {
-//                            gestureBlock.positionChainImages()
-//                        }
+                        blockBeingDragged!!.layoutNestedBlocksOfTree(blockBeingDragged!!)
+                        if (blockBeingDragged!!.type == BlockType.equals) {
+                            blockBeingDragged!!.positionChainImages()
+                        }
                     } else  {
                         blockBeingDragged!!.positionChainImages()
                     }
@@ -237,12 +239,12 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
             deleteBlockChain(startingWithBlock = startingWithBlock.nextBlock, shouldAutoCreateNewStartBlock = shouldAutoCreateNewStartBlock)
 
             // Delete any children that exist
-//            if let child1 = block.nestedChild1 {
-//                deleteBlockChain(startingWith: child1, shouldAutoCreateNewStartBlock: shouldAutoCreateNewStartBlock)
-//            }
-//            if let child2 = block.nestedChild2 {
-//                deleteBlockChain(startingWith: child2, shouldAutoCreateNewStartBlock: shouldAutoCreateNewStartBlock)
-//            }
+            if (startingWithBlock.nestedChild1 != null) {
+                deleteBlockChain(startingWithBlock.nestedChild1, shouldAutoCreateNewStartBlock)
+            }
+            if (startingWithBlock.nestedChild2 != null) {
+                deleteBlockChain(startingWithBlock.nestedChild2, shouldAutoCreateNewStartBlock)
+            }
 
             // Delete this block
             deleteBlock(block = startingWithBlock, shouldAutoCreateNewStartBlock = shouldAutoCreateNewStartBlock)
@@ -253,7 +255,7 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
     private fun deleteBlock(block: Block, shouldAutoCreateNewStartBlock:Boolean = true){
         // if we delete a start block, add a new one if auto-creation is enabled
         if (shouldAutoCreateNewStartBlock && (block.isStart)) {
-            //addStartBlock()
+            addStartBlock(level)
         }
 
         // Remove the view from our workspace and from our list of blocks
@@ -354,11 +356,11 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
         //Look for a block that could be connected to and produce a ghost image
         val attachableBlock = blockAttachable(block)
         if (block.isNestable) {
-//            removeShadedButtons()
-//            let (_, targetButton) = targetForNestedBlock(block: block)
-//            if let buttonToReplace = targetButton {
-//                buttonToReplace.backgroundColor = UIColor.lightGray
-//            }
+            removeShadedButtons()
+            val targetPair = targetForNestedBlock(block)
+            if (targetPair.second != null) {
+                targetPair.second!!.setBackgroundResource(R.drawable.text_box_shaded)
+            }
         } else if (attachableBlock != null) {
             val ghostPosition = block.getPositionForGhost(whenConnectingToBlock = attachableBlock)
             addGhostImage(ofBlock = block, atPosition = ghostPosition)
@@ -381,14 +383,41 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
         shiftedBlock = null   // unshift any blocks
 
         if (block.isNestable) {
-//            let (targetBlock, targetButton) = targetForNestedBlock(block: block)
-//            if let parentBlock = targetBlock, let buttonToReplace = targetButton {
-//                block.parent = parentBlock
-//                parentBlock.insertBlock(blockToInsert: block, intoButton: buttonToReplace)
-//            }
+            val targetPair = targetForNestedBlock(block)
+
+            if ((targetPair.first != null) && (targetPair.second != null)) {
+                block.parent = targetPair.first
+                targetPair.first!!.insertBlock(block, targetPair.second!!)
+            }
         } else {
             blockAttachable(block)?.attachBlock(block)
         }
+    }
+
+    // Return any button in a block that could be replaced with a nested block. We return both the button and the block that it is in, which will be the parent block
+    private fun targetForNestedBlock(block: Block): Pair<Block?, Button?> {
+        //let offset = canvasOffset(of: block)
+
+        for (workspaceBlock in workspaceBlocks) {
+            if ((workspaceBlock.canContainChildren) && workspaceBlock != block && !block.contains(workspaceBlock)){ // Can place a block in the equals block or another nestable block
+                for (targetButton in arrayOf(workspaceBlock.firstNumber, workspaceBlock.secondNumber)) {
+                    // Is the left edge of the block we are trying to nest somewhere within the target button?
+                    val minX = workspaceBlock.x + targetButton.x //+ offset.x
+                    val maxX = workspaceBlock.x + targetButton.x + targetButton.width //+ offset.x
+                    val minY = workspaceBlock.y + targetButton.y //+ offset.y
+                    val maxY = workspaceBlock.y + targetButton.y + targetButton.height //+ offset.y
+                    val centerX = block.x + block.width/2
+                    val centerY = block.y + block.height/2
+                    if ((centerX < maxX && centerX > minX) && (centerY < maxY && centerY > minY)) {
+                        // This is only an acceptable target if there isn't already something nested in that space
+                        if (((targetButton == workspaceBlock.firstNumber) && (workspaceBlock.nestedChild1 == null)) || ((targetButton == workspaceBlock.secondNumber) && (workspaceBlock.nestedChild2 == null))) {
+                            return Pair(workspaceBlock, targetButton)
+                        }
+                    }
+                }
+            }
+        }
+        return Pair(null, null)
     }
 
     private fun addGhostImage(ofBlock: Block, atPosition: Pair<Float,Float>) {
@@ -400,6 +429,16 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
 
     private fun removeGhostImage() {
         ghostBlock.visibility = View.INVISIBLE
+    }
+
+    private fun removeShadedButtons() {
+        for (workspaceBlock in workspaceBlocks) {
+            if (workspaceBlock.canContainChildren) {
+                for (targetButton in arrayOf(workspaceBlock.firstNumber, workspaceBlock.secondNumber)) {
+                    targetButton.setBackgroundResource(R.drawable.text_box)
+                }
+            }
+        }
     }
 
     fun showNumberPad(isVisible: Boolean, showOnRight: Boolean, x:Float = 0.0f, y: Float = 0.0f, boxWidth: Float = 0.0f, boxHeight: Float = 0.0f) {

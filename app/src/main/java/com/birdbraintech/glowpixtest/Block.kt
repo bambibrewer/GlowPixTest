@@ -151,7 +151,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         if (type == BlockType.start) {
             blockLayout.setBackgroundResource(R.drawable.start_block_background)
         } else if (level == Level.level5 && type != BlockType.equals) {
-            blockLayout.setBackgroundResource(R.drawable.block_nested_transparent)
+            blockLayout.setBackgroundResource(R.drawable.block_nested)
         } else {
             blockLayout.setBackgroundResource(R.drawable.block_white2)
         }
@@ -204,11 +204,10 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         if (!isNestable) {        // This function shouldn't be called for a nestable block
             if (nextBlock != null) {
                 nextBlock?.goToPosition(whenConnectingToBlock = this)
-                // STILL NEED TO HANDLE THESE
                 nextBlock?.bringToFront() // Bring the image views to the front so that the last in the chain is on top
-//                if (nextBlock?.type == BlockType.equals) {
-//                    nextBlock.layoutEqualsBlock()
-//                }
+                if (nextBlock?.type == BlockType.equals) {
+                    nextBlock!!.layoutEqualsBlock()
+                }
                 nextBlock?.positionChainImages()
             }
         }
@@ -266,6 +265,26 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         b.evaluateDisplayAndUpdate()
     }
 
+    // Insert a block into this one (only for nesting blocks and the equals block)
+    fun insertBlock(blockToInsert: Block, intoButton: Button){
+        if (!canContainChildren) {
+            Log.e("GlowPix","insertBlock should only be called on blocks that can contain nested children")
+        }
+
+        if (intoButton == firstNumber) {
+            nestedChild1 = blockToInsert
+        } else {
+            nestedChild2 = blockToInsert
+        }
+
+        // Now I want to redraw all nested blocks in this tree
+        if (type == BlockType.equals) {
+            layoutEqualsBlock()
+        } else {
+            layoutNestedBlocksOfTree(this)
+        }
+    }
+
     // Detach a block from the previous block in a vertical chain or from its parents, if it is nestable
     fun detachBlock() {
         if (type == BlockType.start) {     // nothing to do for start blocks
@@ -273,17 +292,17 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         }
 
         if (isNestable) {
-//            if self == parent?.nestedChild1 {
-//                parent?.nestedChild1 = nil
-//            } else {
-//                parent?.nestedChild2 = nil
-//            }
-//
-//            // Redraw the parent tree
-//            if let parentExists = parent {
-//                layoutNestedBlocksOfTree(containing: parentExists)
-//            }
-//            parent = nil
+            if (this == parent?.nestedChild1) {
+                parent?.nestedChild1 = null
+            } else {
+                parent?.nestedChild2 = null
+            }
+
+            // Redraw the parent tree
+            if (parent != null) {
+                layoutNestedBlocksOfTree(parent!!)
+            }
+            parent = null
         } else {
             previousBlock?.nextBlock = null
         }
@@ -306,13 +325,33 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         }
     }
 
+    // Returns true if this block contains the block given by the parameter
+    fun contains(block: Block): Boolean {
+        if (!canContainChildren) {
+            return false            // can't possibly contain a block.
+        }
+
+        if (!block.isNestable) {
+            return false            // can't contain a block that can't next
+        }
+
+        var parent = block.parent
+        while (parent != null) {
+            if (this == parent) {
+                return true
+            }
+            parent = parent?.parent
+        }
+        return false
+    }
+
     private fun layoutBlock() {
         if (isStart) {
             layoutStartBlock()
         } else if (type == BlockType.equals) {
             layoutEqualsBlock()
         } else if (isNestable) {
-            //layoutNestedBlock()
+            layoutNestedBlock()
         } else if (level == Level.level1) {
             layoutBlockLevel1()
         } else if (level == Level.level2) {
@@ -386,16 +425,60 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         answer = addButton("",showPopupOnRight = true)
     }
 
+    // This block finds the top of a nested tree containing a block and then lays out the entire tree
+    fun layoutNestedBlocksOfTree(block: Block) {
+        var outermostBlock = block
+        while (outermostBlock.parent != null) {
+            outermostBlock = outermostBlock.parent!!
+        }
+        if (outermostBlock.type == BlockType.equals) {
+            outermostBlock.layoutEqualsBlock()
+        } else {
+            outermostBlock.layoutNestedBlock()
+        }
+    }
+
+    private fun layoutNestedBlock() {
+        blockLayout.removeAllViews()
+        addLabel("(")
+
+        if (nestedChild1 != null) {
+            //nestedChild1?.imageView.frame.origin.x = imageView.frame.origin.x + origin.x
+            //nestedChild1?.imageView.frame.origin.y = imageView.frame.origin.y
+            nestedChild1?.bringToFront()
+            nestedChild1?.layoutNestedBlock()
+            //origin.x += nestedChild1?.imageView.frame.width ?? 0
+        } else {
+            firstNumber = addButton(firstNumber.text.toString(), false)
+        }
+
+        addLabel(mathOperator)
+
+        // We don't want to remove a button if we are currently changing the number in it
+        if (nestedChild2 != null) {
+            //nestedChild1?.imageView.frame.origin.x = imageView.frame.origin.x + origin.x
+            //nestedChild1?.imageView.frame.origin.y = imageView.frame.origin.y
+            nestedChild2?.bringToFront()
+            nestedChild2?.layoutNestedBlock()
+            //origin.x += nestedChild1?.imageView.frame.width ?? 0
+        } else {
+            secondNumber = addButton(secondNumber.text.toString(), false)
+        }
+
+        // Add closing parentheses
+        addLabel(")")
+    }
+
     private fun layoutEqualsBlock() {
-        //blockLayout.removeAllViews()
+        blockLayout.removeAllViews()
         addColorPickerPutton()
 
         //firstNumber.removeFromSuperview()
         if (nestedChild1 != null) {
 //            nestedChild1?.imageView.frame.origin.x = imageView.frame.origin.x + origin.x
 //            nestedChild1?.imageView.frame.origin.y = imageView.frame.origin.y + 0.5*(heightOfRectangle - (nestedChild1?.imageView.frame.height ?? 0))
-//            nestedChild1?.bringToFront()
-//            nestedChild1?.layoutNestedBlock()
+            nestedChild1?.bringToFront()
+            nestedChild1?.layoutNestedBlock()
 //            origin.x += nestedChild1?.imageView.frame.width ?? 0
         } else {
             firstNumber = addButton(context.getString(R.string.add_block),false)
