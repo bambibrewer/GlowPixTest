@@ -23,7 +23,7 @@ interface BlockDelegate {
     fun savePicture()
 }
 
-// Each block consists of an outer LinearLayout that contains a LinearLayout for the block and
+// Nested blocks consist of a single linear layout. All other blocks consist of an outer LinearLayout that contains a LinearLayout for the block and
 // then the error flag, which may be invisible
 class Block(val type: BlockType, val level: Level, context: Context): LinearLayout(context), ColorPickerDelegate, NumberPadDelegate {
 
@@ -145,22 +145,22 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
             }
         }
 
-    // Set up the structure - in the outer LinearLayout, we have a LinearLayout for the block and
-    // then the error flag, which may be invisible
+    // Set up the structure - nested blocks have a single linear layout. Other blocks have outer LinearLayout
+    // that contains a LinearLayout for the block and then the error flag, which may be invisible
     init {
 
         // Set up the block first
-        if (type == BlockType.start) {
-            blockLayout.setBackgroundResource(R.drawable.start_block_background)
-        } else if (level == Level.level5 && type != BlockType.equals) {
+        if (isNestable) {
             this.setBackgroundResource(R.drawable.block_nested)
         } else {
-            blockLayout.setBackgroundResource(R.drawable.block_white2)
-        }
-        this.addView(blockLayout)
+            if (type == BlockType.start) {
+                blockLayout.setBackgroundResource(R.drawable.start_block_background)
+            } else {
+                blockLayout.setBackgroundResource(R.drawable.block_white2)
+            }
+            this.addView(blockLayout)
 
-        // Set up the errorflag
-        if (!isNestable) {
+            // Set up the errorflag
             errorFlag.setTextColor(Color.WHITE)
             errorFlag.textAlignment = View.TEXT_ALIGNMENT_CENTER
             val params = LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT)
