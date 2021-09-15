@@ -8,6 +8,7 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -101,7 +102,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
     var openParentheses = TextView(context)
     var closeParentheses = TextView(context)
     var nestingOffsetX = 10.0f
-    var parent: Block? = null
+    var parentBlock: Block? = null
     var nestedChild1: Block? = null
     var nestedChild2: Block? = null
 
@@ -112,7 +113,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
             field = value
         }
 
-    var isFirstInChain: Boolean = ((parent == null) && (previousBlock == null))
+    var isFirstInChain: Boolean = ((parentBlock == null) && (previousBlock == null))
 
     var isInactive: Boolean = false
         set(value) {
@@ -215,11 +216,13 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 
 
     override fun bringToFront() {
+        Log.d("Blocks","bring to front "  + mathOperator)
         super.bringToFront()
-//        if !isNestable {
+       // blockLayout.bringToFront()
+//        if (!isNestable) {
 //            nextBlock?.bringToFront()
 //        }
-//        if canContainChildren {
+//        if (canContainChildren) {
 //            layoutBlock()
 //        }
     }
@@ -267,6 +270,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 
     // Insert a block into this one (only for nesting blocks and the equals block)
     fun insertBlock(blockToInsert: Block, intoButton: Button){
+        Log.d("Blocks","inserting")
         if (!canContainChildren) {
             Log.e("GlowPix","insertBlock should only be called on blocks that can contain nested children")
         }
@@ -292,17 +296,17 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         }
 
         if (isNestable) {
-            if (this == parent?.nestedChild1) {
-                parent?.nestedChild1 = null
+            if (this == parentBlock?.nestedChild1) {
+                parentBlock?.nestedChild1 = null
             } else {
-                parent?.nestedChild2 = null
+                parentBlock?.nestedChild2 = null
             }
 
             // Redraw the parent tree
-            if (parent != null) {
-                layoutNestedBlocksOfTree(parent!!)
+            if (parentBlock != null) {
+                layoutNestedBlocksOfTree(parentBlock!!)
             }
-            parent = null
+            parentBlock = null
         } else {
             previousBlock?.nextBlock = null
         }
@@ -335,12 +339,12 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
             return false            // can't contain a block that can't next
         }
 
-        var parent = block.parent
+        var parent = block.parentBlock
         while (parent != null) {
             if (this == parent) {
                 return true
             }
-            parent = parent?.parent
+            parent = parent?.parentBlock
         }
         return false
     }
@@ -428,8 +432,8 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
     // This block finds the top of a nested tree containing a block and then lays out the entire tree
     fun layoutNestedBlocksOfTree(block: Block) {
         var outermostBlock = block
-        while (outermostBlock.parent != null) {
-            outermostBlock = outermostBlock.parent!!
+        while (outermostBlock.parentBlock != null) {
+            outermostBlock = outermostBlock.parentBlock!!
         }
         if (outermostBlock.type == BlockType.equals) {
             outermostBlock.layoutEqualsBlock()
@@ -440,27 +444,31 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 
     private fun layoutNestedBlock() {
         blockLayout.removeAllViews()
+        Log.d("Blocks","layout block  " + mathOperator)
         addLabel("(")
 
         if (nestedChild1 != null) {
-            //nestedChild1?.imageView.frame.origin.x = imageView.frame.origin.x + origin.x
-            //nestedChild1?.imageView.frame.origin.y = imageView.frame.origin.y
-            nestedChild1?.bringToFront()
+            // Want to remove the nested layout from its parent and add it here
+            if (nestedChild1!!.blockLayout.parent != null) {
+                (nestedChild1!!.blockLayout.parent!! as ViewGroup).removeView(nestedChild1!!.blockLayout)       // parent here is previous layout parent, not parentBlock
+            }
             nestedChild1?.layoutNestedBlock()
-            //origin.x += nestedChild1?.imageView.frame.width ?? 0
+            blockLayout.addView(nestedChild1?.blockLayout)
+            nestedChild1?.bringToFront()
         } else {
             firstNumber = addButton(firstNumber.text.toString(), false)
         }
 
         addLabel(mathOperator)
 
-        // We don't want to remove a button if we are currently changing the number in it
         if (nestedChild2 != null) {
-            //nestedChild1?.imageView.frame.origin.x = imageView.frame.origin.x + origin.x
-            //nestedChild1?.imageView.frame.origin.y = imageView.frame.origin.y
-            nestedChild2?.bringToFront()
+            // Want to remove the nested layout from its parent and add it here
+            if (nestedChild2!!.blockLayout.parent != null) {
+                (nestedChild2!!.blockLayout.parent!! as ViewGroup).removeView(nestedChild2!!.blockLayout)       // parent here is previous layout parent, not parentBlock
+            }
             nestedChild2?.layoutNestedBlock()
-            //origin.x += nestedChild1?.imageView.frame.width ?? 0
+            blockLayout.addView(nestedChild2?.blockLayout)
+            nestedChild2?.bringToFront()
         } else {
             secondNumber = addButton(secondNumber.text.toString(), false)
         }
@@ -473,13 +481,14 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         blockLayout.removeAllViews()
         addColorPickerPutton()
 
-        //firstNumber.removeFromSuperview()
         if (nestedChild1 != null) {
-//            nestedChild1?.imageView.frame.origin.x = imageView.frame.origin.x + origin.x
-//            nestedChild1?.imageView.frame.origin.y = imageView.frame.origin.y + 0.5*(heightOfRectangle - (nestedChild1?.imageView.frame.height ?? 0))
-            nestedChild1?.bringToFront()
+            // Want to remove the nested layout from its parent and add it here
+            if (nestedChild1!!.blockLayout.parent != null) {
+                (nestedChild1!!.blockLayout.parent!! as ViewGroup).removeView(nestedChild1!!.blockLayout)       // parent here is previous layout parent, not parentBlock
+            }
             nestedChild1?.layoutNestedBlock()
-//            origin.x += nestedChild1?.imageView.frame.width ?? 0
+            blockLayout.addView(nestedChild1?.blockLayout)
+            nestedChild1?.bringToFront()
         } else {
             firstNumber = addButton(context.getString(R.string.add_block),false)
             firstNumber.setTextColor(ContextCompat.getColor(context, R.color.sectionTeal))
@@ -648,8 +657,8 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         }
         else if (isNestable) {
             var outermostBlock = this
-            while (outermostBlock.parent != null) {
-                outermostBlock = outermostBlock.parent!!
+            while (outermostBlock.parentBlock != null) {
+                outermostBlock = outermostBlock.parentBlock!!
             }
             if (outermostBlock.type == BlockType.equals) {
                 return outermostBlock.evaluate()
@@ -753,8 +762,8 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         // Don't display errors on nested blocks - want to display errors on the parent equals block
         if (isNestable) {
             var outermostBlock = this
-            while (outermostBlock.parent != null) {
-                outermostBlock = outermostBlock.parent!!
+            while (outermostBlock.parentBlock != null) {
+                outermostBlock = outermostBlock.parentBlock!!
             }
             if (outermostBlock.type == BlockType.equals) {
                 outermostBlock.displayError(result)

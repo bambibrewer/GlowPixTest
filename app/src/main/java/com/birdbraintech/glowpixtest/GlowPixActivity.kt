@@ -15,7 +15,6 @@ import android.view.ViewTreeObserver
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
@@ -386,7 +385,7 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
             val targetPair = targetForNestedBlock(block)
 
             if ((targetPair.first != null) && (targetPair.second != null)) {
-                block.parent = targetPair.first
+                block.parentBlock = targetPair.first
                 targetPair.first!!.insertBlock(block, targetPair.second!!)
             }
         } else {
