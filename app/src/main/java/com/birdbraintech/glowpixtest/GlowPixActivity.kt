@@ -262,16 +262,34 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
         workspaceBlocks.remove(block)
     }
 
+//    private fun findBlockForView(view: View): Block? {
+//        for (block in workspaceBlocks) {
+//            if (block.blockLayout == view) {
+//                return block
+//            }
+//        }
+//        return null
+//    }
+
     private fun startBlockDrag(view: View): Boolean {
+        Log.d("Blocks", "start dragging")
         showNumberPad(false, false)
         showColorPicker(false)
         blockBeingDragged = view as? Block
+//        for (block in workspaceBlocks) {
+//            if (block.blockLayout == view) {
+//                blockBeingDragged = block
+//            }
+//        }
         hideBlocks(true)
 
         //if there is a block ahead of us on the chain, moving this block will change that
         blockBeingDragged?.detachBlock()
-//        if (blockBeingDragged?.isNestable) {
-//            block.imageView.center = gesture.location(in: self.view)
+//        if (blockBeingDragged != null) {
+//            if (blockBeingDragged!!.isNestable) {
+//                Log.d("Blocks","dragging nest block")
+//                //block.imageView.center = gesture.location(in: self.view)
+//            }
 //        }
 //        block.bringToFront()
 

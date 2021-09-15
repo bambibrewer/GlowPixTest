@@ -14,6 +14,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlin.math.roundToInt
 
 // The view controller that contains the block should be a delegate so it can be notified when the blocks has changed
@@ -152,20 +153,22 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         if (type == BlockType.start) {
             blockLayout.setBackgroundResource(R.drawable.start_block_background)
         } else if (level == Level.level5 && type != BlockType.equals) {
-            blockLayout.setBackgroundResource(R.drawable.block_nested)
+            this.setBackgroundResource(R.drawable.block_nested)
         } else {
             blockLayout.setBackgroundResource(R.drawable.block_white2)
         }
         this.addView(blockLayout)
 
         // Set up the errorflag
-        errorFlag.setTextColor(Color.WHITE)
-        errorFlag.textAlignment = View.TEXT_ALIGNMENT_CENTER
-        val params = LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT)
-        params.setMargins(0, (blockHeight - heightOfRectangle).roundToInt(), 0, 0)
-        errorFlag.layoutParams = params
-        this.addView(errorFlag)
-        displayError(EvaluationOptions.incomplete)
+        if (!isNestable) {
+            errorFlag.setTextColor(Color.WHITE)
+            errorFlag.textAlignment = View.TEXT_ALIGNMENT_CENTER
+            val params = LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT)
+            params.setMargins(0, (blockHeight - heightOfRectangle).roundToInt(), 0, 0)
+            errorFlag.layoutParams = params
+            this.addView(errorFlag)
+            displayError(EvaluationOptions.incomplete)
+        }
 
         // Define the optional fields for the double addition block - it is the only one that uses them
         if (type == BlockType.doubleAddition) {
@@ -387,7 +390,8 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 
         // add a number button for levels 1 and 2
         if ((level == Level.level1) || (level == Level.level2)) {
-            answer = addButton("",showPopupOnRight = true)
+            answer = makeButton("",showPopupOnRight = true)
+            blockLayout.addView(answer)
 
         }
     }
@@ -395,38 +399,58 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
     private fun layoutBlockLevel1()
     {
         blockLayout.removeAllViews()
-        addColorPickerPutton()
-        firstNumber = addDisabledButton(getPreviousAnswer())
-        addLabel(mathOperator)
+        val colorPick = makeColorPickerPutton()
+        blockLayout.addView(colorPick)
+        firstNumber = makeDisabledButton(getPreviousAnswer())
+        blockLayout.addView(firstNumber)
+        val operatorLabel = makeLabel(mathOperator)
+        blockLayout.addView(operatorLabel)
         val secondNumString = if ((type == BlockType.addition1 || type == BlockType.subtraction1)) "1" else "10"
-        secondNumber = addDisabledButton(secondNumString)
-        addLabel("=")
-        answer = addButton(answer.text.toString(),showPopupOnRight = true)
+        secondNumber = makeDisabledButton(secondNumString)
+        blockLayout.addView(secondNumber)
+        val equalsLabel = makeLabel("=")
+        blockLayout.addView(equalsLabel)
+        answer = makeButton(answer.text.toString(),showPopupOnRight = true)
+        blockLayout.addView(answer)
     }
 
     private fun layoutBlockLevel2()
     {
         blockLayout.removeAllViews()
-        addColorPickerPutton()
-        firstNumber = addDisabledButton(getPreviousAnswer())
-        addLabel(mathOperator)
-        secondNumber = addButton(secondNumber.text.toString(),showPopupOnRight = false)
-        addLabel("=")
-        answer = addButton(answer.text.toString(),showPopupOnRight = true)
+        val colorPick = makeColorPickerPutton()
+        blockLayout.addView(colorPick)
+        firstNumber = makeDisabledButton(getPreviousAnswer())
+        blockLayout.addView(firstNumber)
+        val operatorLabel = makeLabel(mathOperator)
+        blockLayout.addView(operatorLabel)
+        secondNumber = makeButton(secondNumber.text.toString(),showPopupOnRight = false)
+        blockLayout.addView(secondNumber)
+        val equalsLabel = makeLabel("=")
+        blockLayout.addView(equalsLabel)
+        answer = makeButton(answer.text.toString(),showPopupOnRight = true)
+        blockLayout.addView(answer)
     }
 
     private fun layoutBlockLevels3and4()
     {
-        addColorPickerPutton()
-        firstNumber = addButton("",showPopupOnRight = false)
-        addLabel(mathOperator)
-        secondNumber = addButton("",showPopupOnRight = false)
+        val colorPick = makeColorPickerPutton()
+        blockLayout.addView(colorPick)
+        firstNumber = makeButton("",showPopupOnRight = false)
+        blockLayout.addView(firstNumber)
+        val operatorLabel = makeLabel(mathOperator)
+        blockLayout.addView(operatorLabel)
+        secondNumber = makeButton("",showPopupOnRight = false)
+        blockLayout.addView(secondNumber)
         if (type == BlockType.doubleAddition) {
-            addLabel(mathOperator)
-            thirdNumber = addButton("",showPopupOnRight = false)
+            val operatorLabel2 = makeLabel(mathOperator)
+            blockLayout.addView(operatorLabel2)
+            thirdNumber = makeButton("",showPopupOnRight = false)
+            blockLayout.addView(thirdNumber)
         }
-        addLabel("=")
-        answer = addButton("",showPopupOnRight = true)
+        val equalsLabel = makeLabel("=")
+        blockLayout.addView(equalsLabel)
+        answer = makeButton(answer.text.toString(),showPopupOnRight = true)
+        blockLayout.addView(answer)
     }
 
     // This block finds the top of a nested tree containing a block and then lays out the entire tree
@@ -443,23 +467,41 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
     }
 
     private fun layoutNestedBlock() {
-        blockLayout.removeAllViews()
-        Log.d("Blocks","layout block  " + mathOperator)
-        addLabel("(")
+        this.removeAllViews()
+        val openLabel = makeLabel("(")
+        this.addView(openLabel)
 
         if (nestedChild1 != null) {
             // Want to remove the nested layout from its parent and add it here
-            if (nestedChild1!!.blockLayout.parent != null) {
-                (nestedChild1!!.blockLayout.parent!! as ViewGroup).removeView(nestedChild1!!.blockLayout)       // parent here is previous layout parent, not parentBlock
+//            if (nestedChild1!!.blockLayout.parent != null) {
+//                (nestedChild1!!.blockLayout.parent!! as ViewGroup).removeView(nestedChild1!!.blockLayout)       // parent here is previous layout parent, not parentBlock
+//            }
+//            nestedChild1?.layoutNestedBlock()
+//            blockLayout.addView(nestedChild1?.blockLayout)
+//            nestedChild1?.bringToFront()
+            if ((nestedChild1!!).parent != null) {
+                Log.d("Blocks", (nestedChild1!!.parent == workspace).toString())
+                (nestedChild1!!.parent!! as ViewGroup).removeView(nestedChild1!!)       // parent here is previous layout parent, not parentBlock
             }
+
+//            nestedChild1?.removeAllViews()
+//            nestedChild1?.blockLayout = LinearLayout(context)
+//            nestedChild1?.addView(nestedChild1?.blockLayout)
+            val t = TextView(context)
+            t.text = "teasting"
             nestedChild1?.layoutNestedBlock()
-            blockLayout.addView(nestedChild1?.blockLayout)
+            //this.addView(t)
+            this.addView(nestedChild1)
+            nestedChild1?.addView(t)
+            nestedChild1?.visibility = View.VISIBLE
             nestedChild1?.bringToFront()
         } else {
-            firstNumber = addButton(firstNumber.text.toString(), false)
+            firstNumber = makeButton(firstNumber.text.toString(), false)
+            this.addView(firstNumber)
         }
 
-        addLabel(mathOperator)
+        val operatorLabel = makeLabel(mathOperator)
+        this.addView(operatorLabel)
 
         if (nestedChild2 != null) {
             // Want to remove the nested layout from its parent and add it here
@@ -470,16 +512,19 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
             blockLayout.addView(nestedChild2?.blockLayout)
             nestedChild2?.bringToFront()
         } else {
-            secondNumber = addButton(secondNumber.text.toString(), false)
+            secondNumber = makeButton(secondNumber.text.toString(), false)
+            this.addView(secondNumber)
         }
 
         // Add closing parentheses
-        addLabel(")")
+        val closeLabel = makeLabel(")")
+        this.addView(closeLabel)
     }
 
     private fun layoutEqualsBlock() {
         blockLayout.removeAllViews()
-        addColorPickerPutton()
+        val colorPick = makeColorPickerPutton()
+        blockLayout.addView(colorPick)
 
         if (nestedChild1 != null) {
             // Want to remove the nested layout from its parent and add it here
@@ -490,17 +535,20 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
             blockLayout.addView(nestedChild1?.blockLayout)
             nestedChild1?.bringToFront()
         } else {
-            firstNumber = addButton(context.getString(R.string.add_block),false)
+            firstNumber = makeButton(context.getString(R.string.add_block),false)
+            blockLayout.addView(firstNumber)
             firstNumber.setTextColor(ContextCompat.getColor(context, R.color.sectionTeal))
             firstNumber.isClickable = false     // Can't add a number here
         }
 
-        addLabel("=")
-        answer = addButton("",showPopupOnRight = true)
+        val equalsLabel = makeLabel("=")
+        blockLayout.addView(equalsLabel)
+        answer = makeButton(answer.text.toString(),showPopupOnRight = true)
+        blockLayout.addView(answer)
     }
 
     /* This function configures a button in the block. The buttons are where the user enters numbers.*/
-    private fun addLabel(text: String) {
+    private fun makeLabel(text: String): TextView {
         val label = TextView(context)
         val padding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics).toInt()
         label.text = text
@@ -510,11 +558,11 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         label.typeface = typeface
         label.gravity = Gravity.CENTER
         label.setPadding(padding, 0, padding, 0)
-        blockLayout.addView(label)
+        return label
     }
 
     /* This function configures a button in the block. The buttons are where the user enters numbers.*/
-    private fun addButton(text: String,showPopupOnRight: Boolean): Button {
+    private fun makeButton(text: String,showPopupOnRight: Boolean): Button {
         val button = Button(context)
         val padding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.displayMetrics).toInt()
         button.setBackgroundResource(R.drawable.text_box)
@@ -543,12 +591,11 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 
             context.showNumberPad(true, showPopupOnRight, x = locationOnScreen[0].toFloat() + button.x, y = locationOnScreen[1].toFloat() + button.y,boxWidth = button.width.toFloat(), boxHeight = button.height.toFloat())
         }
-        blockLayout.addView(button)
         return button
     }
 
     /* Some of the numbers in Levels 1 and 2 are disabled buttons. This function configures those.*/
-    private fun addDisabledButton(text: String): Button {
+    private fun makeDisabledButton(text: String): Button {
         val button = Button(context)
         val padding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.displayMetrics).toInt()
         button.setBackgroundResource(R.drawable.text_box_borderless)
@@ -569,15 +616,13 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         button.gravity = Gravity.CENTER
         button.setPadding(padding, 0, padding, 0)
         button.isClickable = false      // make touches pass through
-        blockLayout.addView(button)
         return button
     }
 
-    private fun addColorPickerPutton() {
+    private fun makeColorPickerPutton(): Button {
         // Add color picker button
         colorPickerButton = Button(this.context)
         colorPickerButton.setBackgroundResource(ledColor.colorButtonImage)
-        blockLayout.addView(colorPickerButton)
         val params = LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT)
         val scale = context.resources.displayMetrics.density
         val pixels = (colorButtonSize * scale + 0.5f).toInt()
@@ -596,6 +641,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
             context.showColorPicker(true, x = locationOnScreen[0].toFloat(), y = locationOnScreen[1].toFloat(), blockHeight = heightOfRectangle)
         }
         colorPickerButton.isFocusable = false
+        return colorPickerButton
     }
 
     // Required for ColorPickerDelegate
