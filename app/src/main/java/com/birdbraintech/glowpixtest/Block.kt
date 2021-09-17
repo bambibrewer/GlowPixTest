@@ -277,7 +277,6 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 
     // Insert a block into this one (only for nesting blocks and the equals block)
     fun insertBlock(blockToInsert: Block, intoButton: Button){
-        Log.d("Blocks","inserting")
         if (!canContainChildren) {
             Log.e("GlowPix","insertBlock should only be called on blocks that can contain nested children")
         }
@@ -518,22 +517,13 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
                     params.height = top - bottom
                     params.width = right - left
                     space.layoutParams = params
+                    nestedChild2?.x = nestedChild2?.parentBlock!!.x + space.x
                 }
             })
-
-            this.addOnLayoutChangeListener(object : OnLayoutChangeListener {
-                override fun onLayoutChange(v: View, left: Int, top: Int, right: Int, bottom: Int, oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
-                    Log.d("Blocks","width change " + (right - left).toString())
-                    val child1width  = if (nestedChild1 != null) nestedChild1!!.width else firstNumber.width
-                    nestedChild2?.x = left.toFloat() + child1width//right.toFloat() + space.width - parenthesesOffset
-                    Log.d("Blocks","space width " + space.width + " " + left + " " + right + " " + nestedChild2?.x)
-                    //nestedChild2?.y = this.y
-                }
-            })
-
 
             // Want to place the child on top of this block and leave space for it - block will still be independent so that it can be dragged away
-//            nestedChild2?.x = this.x + parenthesesOffset
+            val child1width  = if (nestedChild1 != null) nestedChild1!!.width else firstNumber.width
+            nestedChild2?.x = this.x + space.x//this.width - parenthesesOffset
             nestedChild2?.y = this.y
             nestedChild2?.bringToFront()
             nestedChild2?.layoutNestedBlock()
