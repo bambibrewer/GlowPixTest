@@ -463,7 +463,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         while (outermostBlock.parentBlock != null) {
             outermostBlock = outermostBlock.parentBlock!!
         }
-        Log.d("Blocks", "Outermost block " + outermostBlock.mathOperator)
+
         if (outermostBlock.type == BlockType.equals) {
             outermostBlock.layoutEqualsBlock()
         } else {
@@ -473,12 +473,13 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 
     private fun layoutNestedBlock() {
         this.removeAllViews()
-        Log.d("Blocks", "My width before " + mathOperator + "  " + this.width)
         openParentheses = makeLabel("(")
         this.addView(openParentheses)
 
         if (nestedChild1 != null) {
 
+            // Add a space and create a listener to update the space to be the same size as the nested block
+            // whenever the size of the nested blocks changes
             val space = TextView(context)
             this.addView(space)
             nestedChild1?.addOnLayoutChangeListener(object : OnLayoutChangeListener {
@@ -491,17 +492,12 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
                 }
             })
 
-            // Want to place the child in this block and leave space for it - block will still be independent so that it can be dragged away
+            // Want to place the child on top of this block and leave space for it - block will still be independent so that it can be dragged away
             nestedChild1?.x = this.x + parenthesesOffset
             nestedChild1?.y = this.y
             nestedChild1?.bringToFront()
             nestedChild1?.layoutNestedBlock()
-
-
-
-            //this.addView(space)
-            Log.d("Blocks", "Child Width " + mathOperator + "  " + nestedChild1!!.width + " " + width + nestedChild1!!.secondNumber.width)
-        } else {
+      } else {
             firstNumber = makeButton(firstNumber.text.toString(), false)
             this.addView(firstNumber)
         }
@@ -509,16 +505,39 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         val operatorLabel = makeLabel(mathOperator)
         this.addView(operatorLabel)
 
+
         if (nestedChild2 != null) {
-            // Want to remove the nested layout from its parent and add it here
-            if (nestedChild2!!.blockLayout.parent != null) {
-                (nestedChild2!!.blockLayout.parent!! as ViewGroup).removeView(nestedChild2!!.blockLayout)       // parent here is previous layout parent, not parentBlock
-            }
-            nestedChild2?.layoutNestedBlock()
-            blockLayout.addView(nestedChild2?.blockLayout)
+            // Add a space and create a listener to update the space to be the same size as the nested block
+            // whenever the size of the nested blocks changes
+            val space = TextView(context)
+            this.addView(space)
+            nestedChild2?.addOnLayoutChangeListener(object : OnLayoutChangeListener {
+                override fun onLayoutChange(v: View, left: Int, top: Int, right: Int, bottom: Int, oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
+                    Log.d("Blocks","width change " + (right - left).toString())
+                    val params = LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT)
+                    params.height = top - bottom
+                    params.width = right - left
+                    space.layoutParams = params
+                }
+            })
+
+            this.addOnLayoutChangeListener(object : OnLayoutChangeListener {
+                override fun onLayoutChange(v: View, left: Int, top: Int, right: Int, bottom: Int, oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
+                    Log.d("Blocks","width change " + (right - left).toString())
+                    val child1width  = if (nestedChild1 != null) nestedChild1!!.width else firstNumber.width
+                    nestedChild2?.x = left.toFloat() + child1width//right.toFloat() + space.width - parenthesesOffset
+                    Log.d("Blocks","space width " + space.width + " " + left + " " + right + " " + nestedChild2?.x)
+                    //nestedChild2?.y = this.y
+                }
+            })
+
+
+            // Want to place the child on top of this block and leave space for it - block will still be independent so that it can be dragged away
+//            nestedChild2?.x = this.x + parenthesesOffset
+            nestedChild2?.y = this.y
             nestedChild2?.bringToFront()
+            nestedChild2?.layoutNestedBlock()
         } else {
-            Log.d("Blocks", "second child " + mathOperator )
             secondNumber = makeButton(secondNumber.text.toString(), false)
             this.addView(secondNumber)
         }
@@ -526,7 +545,6 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         // Add closing parentheses
         closeParentheses = makeLabel(")")
         this.addView(closeParentheses)
-        Log.d("Blocks", "My width after " + mathOperator + "  " + this.width)
     }
 
     private fun layoutEqualsBlock() {
@@ -535,13 +553,25 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         blockLayout.addView(colorPick)
 
         if (nestedChild1 != null) {
-            // Want to remove the nested layout from its parent and add it here
-            if (nestedChild1!!.blockLayout.parent != null) {
-                (nestedChild1!!.blockLayout.parent!! as ViewGroup).removeView(nestedChild1!!.blockLayout)       // parent here is previous layout parent, not parentBlock
-            }
-            nestedChild1?.layoutNestedBlock()
-            blockLayout.addView(nestedChild1?.blockLayout)
+            // Add a space and create a listener to update the space to be the same size as the nested block
+            // whenever the size of the nested blocks changes
+            val spaceEquals = TextView(context)
+            blockLayout.addView(spaceEquals)
+            nestedChild1?.addOnLayoutChangeListener(object : OnLayoutChangeListener {
+                override fun onLayoutChange(v: View, left: Int, top: Int, right: Int, bottom: Int, oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
+                    Log.d("Blocks","width change " + (right - left).toString())
+                    val params = LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT)
+                    params.height = top - bottom
+                    params.width = right - left
+                    spaceEquals.layoutParams = params
+                }
+            })
+
+            // Want to place the child on top of this block and leave space for it - block will still be independent so that it can be dragged away
+            nestedChild1?.x = this.x + 2*parenthesesOffset + colorButtonSize
+            nestedChild1?.y = this.y + (heightOfRectangle - heightOfButton)/2F
             nestedChild1?.bringToFront()
+            nestedChild1?.layoutNestedBlock()
         } else {
             firstNumber = makeButton(context.getString(R.string.add_block),false)
             blockLayout.addView(firstNumber)
