@@ -4,6 +4,7 @@ import android.app.ActionBar
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.BitmapDrawable
 import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
@@ -14,8 +15,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlin.math.roundToInt
+
 
 // The view controller that contains the block should be a delegate so it can be notified when the blocks has changed
 interface BlockDelegate {
@@ -76,6 +77,8 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
             return (0.4 * blockHeight).toFloat()
         }
 
+    val parenthesesOffset = 10F
+
     // Find out where the block is to show the color picker popup
     val locationOnScreen: IntArray
     get() {
@@ -94,6 +97,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
     val errorFlag = TextView(context)
     var colorPickerButton = Button(context)
     var firstNumber = Button(context)
+    var operatorLabel = TextView(context)
     var secondNumber = Button(context)
     var operatorLabel2: TextView? = null
     var thirdNumber: Button? = null
@@ -459,6 +463,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
         while (outermostBlock.parentBlock != null) {
             outermostBlock = outermostBlock.parentBlock!!
         }
+        Log.d("Blocks", "Outermost block " + outermostBlock.mathOperator)
         if (outermostBlock.type == BlockType.equals) {
             outermostBlock.layoutEqualsBlock()
         } else {
@@ -468,33 +473,34 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 
     private fun layoutNestedBlock() {
         this.removeAllViews()
-        val openLabel = makeLabel("(")
-        this.addView(openLabel)
+        Log.d("Blocks", "My width before " + mathOperator + "  " + this.width)
+        openParentheses = makeLabel("(")
+        this.addView(openParentheses)
 
         if (nestedChild1 != null) {
-            // Want to remove the nested layout from its parent and add it here
-//            if (nestedChild1!!.blockLayout.parent != null) {
-//                (nestedChild1!!.blockLayout.parent!! as ViewGroup).removeView(nestedChild1!!.blockLayout)       // parent here is previous layout parent, not parentBlock
-//            }
-//            nestedChild1?.layoutNestedBlock()
-//            blockLayout.addView(nestedChild1?.blockLayout)
-//            nestedChild1?.bringToFront()
-            if ((nestedChild1!!).parent != null) {
-                Log.d("Blocks", (nestedChild1!!.parent == workspace).toString())
-                (nestedChild1!!.parent!! as ViewGroup).removeView(nestedChild1!!)       // parent here is previous layout parent, not parentBlock
-            }
 
-//            nestedChild1?.removeAllViews()
-//            nestedChild1?.blockLayout = LinearLayout(context)
-//            nestedChild1?.addView(nestedChild1?.blockLayout)
-            val t = TextView(context)
-            t.text = "teasting"
-            nestedChild1?.layoutNestedBlock()
-            //this.addView(t)
-            this.addView(nestedChild1)
-            nestedChild1?.addView(t)
-            nestedChild1?.visibility = View.VISIBLE
+            val space = TextView(context)
+            this.addView(space)
+            nestedChild1?.addOnLayoutChangeListener(object : OnLayoutChangeListener {
+                override fun onLayoutChange(v: View, left: Int, top: Int, right: Int, bottom: Int, oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
+                    Log.d("Blocks","width change " + (right - left).toString())
+                    val params = LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT)
+                    params.height = top - bottom
+                    params.width = right - left
+                    space.layoutParams = params
+                }
+            })
+
+            // Want to place the child in this block and leave space for it - block will still be independent so that it can be dragged away
+            nestedChild1?.x = this.x + parenthesesOffset
+            nestedChild1?.y = this.y
             nestedChild1?.bringToFront()
+            nestedChild1?.layoutNestedBlock()
+
+
+
+            //this.addView(space)
+            Log.d("Blocks", "Child Width " + mathOperator + "  " + nestedChild1!!.width + " " + width + nestedChild1!!.secondNumber.width)
         } else {
             firstNumber = makeButton(firstNumber.text.toString(), false)
             this.addView(firstNumber)
@@ -512,13 +518,15 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
             blockLayout.addView(nestedChild2?.blockLayout)
             nestedChild2?.bringToFront()
         } else {
+            Log.d("Blocks", "second child " + mathOperator )
             secondNumber = makeButton(secondNumber.text.toString(), false)
             this.addView(secondNumber)
         }
 
         // Add closing parentheses
-        val closeLabel = makeLabel(")")
-        this.addView(closeLabel)
+        closeParentheses = makeLabel(")")
+        this.addView(closeParentheses)
+        Log.d("Blocks", "My width after " + mathOperator + "  " + this.width)
     }
 
     private fun layoutEqualsBlock() {

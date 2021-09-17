@@ -262,25 +262,13 @@ class GlowPixActivity : AppCompatActivity(), BlockDelegate {
         workspaceBlocks.remove(block)
     }
 
-//    private fun findBlockForView(view: View): Block? {
-//        for (block in workspaceBlocks) {
-//            if (block.blockLayout == view) {
-//                return block
-//            }
-//        }
-//        return null
-//    }
 
     private fun startBlockDrag(view: View): Boolean {
         Log.d("Blocks", "start dragging")
         showNumberPad(false, false)
         showColorPicker(false)
         blockBeingDragged = view as? Block
-//        for (block in workspaceBlocks) {
-//            if (block.blockLayout == view) {
-//                blockBeingDragged = block
-//            }
-//        }
+
         hideBlocks(true)
 
         //if there is a block ahead of us on the chain, moving this block will change that
