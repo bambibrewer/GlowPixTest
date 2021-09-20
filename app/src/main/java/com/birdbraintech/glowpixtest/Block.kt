@@ -78,7 +78,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
             return (0.4 * blockHeight).toFloat()
         }
 
-    val parenthesesOffset = 10F
+    val parenthesesOffset = 20F
 
     // Find out where the block is to show the color picker popup
     val locationOnScreen: IntArray
@@ -109,7 +109,7 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
     var closeParentheses = TextView(context)
     var space = TextView(context)
     var space2 = TextView(context)
-    var nestingOffsetX = 10.0f
+    var nestingOffsetX = 52.0f
     var parentBlock: Block? = null
     var nestedChild1: Block? = null
     var nestedChild2: Block? = null
@@ -475,6 +475,11 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
 
     private fun layoutNestedBlock() {
         this.removeAllViews()
+        val params = LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT)
+        params.height = heightOfButton.toInt()
+        this.layoutParams = params
+        this.gravity = Gravity.CENTER_VERTICAL
+
         openParentheses = makeLabel("(")
         this.addView(openParentheses)
 
@@ -486,17 +491,15 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
             this.addView(space)
             nestedChild1?.addOnLayoutChangeListener(object : OnLayoutChangeListener {
                 override fun onLayoutChange(v: View, left: Int, top: Int, right: Int, bottom: Int, oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
-                    Log.d("Blocks","width change child 1 " + (right - left).toString())
+                    //Log.d("Blocks","width change child 1 " + (right - left).toString())
                     val params = LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT)
-                    params.height = top - bottom
                     params.width = right - left
-                    nestingOffsetX = (right - left).toFloat()
                     space.layoutParams = params
-                    Log.d("Blocks","change position child 1 " + space.layoutParams.width +  " "  + (right - left))
+                    //Log.d("Blocks","change position child 1 " + space.layoutParams.width +  " "  + (right - left))
 
                     if (nestedChild2 != null) {
                         val offset: Float = space.layoutParams.width.toFloat()
-                        nestedChild2?.x = nestedChild2?.parentBlock!!.x + offset + 50F//space2.x
+                        nestedChild2?.x = nestedChild2?.parentBlock!!.x + offset + nestingOffsetX
                     }
                 }
             })
@@ -523,20 +526,18 @@ class Block(val type: BlockType, val level: Level, context: Context): LinearLayo
             this.addView(space2)
             nestedChild2?.addOnLayoutChangeListener(object : OnLayoutChangeListener {
                 override fun onLayoutChange(v: View, left: Int, top: Int, right: Int, bottom: Int, oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
-                    Log.d("Blocks","width change child 2 " + (right - left).toString())
+                    //Log.d("Blocks","width change child 2 " + (right - left).toString())
                     val params = LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT)
-                    params.height = top - bottom
                     params.width = right - left
                     space2.layoutParams = params
-                    val offset: Float = if (nestedChild1 == null) firstNumber.width.toFloat() else space.layoutParams.width.toFloat()//nestingOffsetX
-                    Log.d("Blocks","change position child 2 " + offset + " "  +  " "  + (right - left))
-                    nestedChild2?.x = nestedChild2?.parentBlock!!.x + offset + 50F//space2.x
+                    val offset: Float = if (nestedChild1 == null) firstNumber.width.toFloat() else space.layoutParams.width.toFloat()
+                    //Log.d("Blocks","change position child 2 " + offset + " "  +  " "  + (right - left))
+                    nestedChild2?.x = nestedChild2?.parentBlock!!.x + offset + nestingOffsetX
                 }
             })
 
             // Want to place the child on top of this block and leave space for it - block will still be independent so that it can be dragged away
             val child1width  = if (nestedChild1 != null) nestedChild1!!.width else firstNumber.width
-            //nestedChild2?.x = this.x + space.x//this.width - parenthesesOffset
             nestedChild2?.y = this.y
             nestedChild2?.bringToFront()
             nestedChild2?.layoutNestedBlock()
